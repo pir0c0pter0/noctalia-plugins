@@ -718,7 +718,7 @@
     {
       "id": "screen-recorder",
       "name": "Screen Recorder",
-      "version": "1.2.7",
+      "version": "1.2.0",
       "official": true,
       "author": "Noctalia Team",
       "description": "Hardware-accelerated screen recording using gpu-screen-recorder with customizable video and audio settings",
@@ -729,7 +729,7 @@
         "Bar",
         "Utility"
       ],
-      "lastUpdated": "2026-03-07T11:52:17+01:00"
+      "lastUpdated": "2026-03-07T11:53:21+01:00"
     },
     {
       "id": "screen-shot-and-record",
