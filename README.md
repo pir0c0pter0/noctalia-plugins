@@ -1,5 +1,7 @@
 # Noctalia Main Plugins Registry
 
+**Author:** Pir0c0pter0 — pir0c0pter0000@gmail.com
+
 Main plugin registry for [Noctalia Shell](https://github.com/noctalia-dev/noctalia-shell).
 
 ## Overview
