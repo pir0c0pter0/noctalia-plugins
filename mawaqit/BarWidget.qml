@@ -68,19 +68,18 @@ Item {
     const m = Math.floor((secondsToNext % 3600) / 60)
     if (h > 0) return `${h}h ${m}m`
     if (m > 0) return `${m}m`
-    return pluginApi?.tr("widget.soon") || "soon"
+    return pluginApi?.tr("widget.soon")
   }
 
   readonly property string displayText: {
     if (isLoading && !prayerTimings) return "..."
     if (hasError) return "!"
     if (!prayerTimings || !nextPrayerName) return "—"
-    if (prayerNow) return `${nextPrayerLabel} · ${pluginApi?.tr("widget.now") || "Now"}`
+    if (prayerNow) return `${nextPrayerLabel} · ${pluginApi?.tr("widget.now")}`
     if (showCountdown && secondsToNext > 0) return `${nextPrayerLabel} ${countdownStr}`
     return `${nextPrayerLabel} ${nextPrayerTimeStr}`
   }
 
-  // Vertical bar: two separate lines so text is never cut off
   readonly property string verticalLine1: {
     if (isLoading && !prayerTimings) return "..."
     if (hasError) return "!"
@@ -89,14 +88,14 @@ Item {
   }
   readonly property string verticalLine2: {
     if (!prayerTimings || !nextPrayerName) return ""
-    if (prayerNow) return pluginApi?.tr("widget.now") || "Now"
+    if (prayerNow) return pluginApi?.tr("widget.now")
     if (showCountdown && secondsToNext > 0) return countdownStr
     return nextPrayerTimeStr
   }
 
   readonly property string tooltipText: {
-    if (!prayerTimings) return pluginApi?.tr("widget.tooltip.noData") || "No prayer data"
-    return `${nextPrayerLabel}: ${nextPrayerTimeStr}\n${pluginApi?.tr("widget.tooltip.countdown") || "Time remaining"}: ${countdownStr}`
+    if (!prayerTimings) return pluginApi?.tr("widget.tooltip.noData")
+    return `${nextPrayerLabel}: ${nextPrayerTimeStr}\n${pluginApi?.tr("widget.tooltip.countdown")}: ${countdownStr}`
   }
 
   readonly property real iconSize: Style.toOdd(capsuleHeight * 0.55)
@@ -271,7 +270,7 @@ Item {
         mouse.accepted = true
         mainInstance?.stopAzanFile()
       }
-      onEntered: TooltipService.show(stopIconH, pluginApi?.tr("widget.stopAzan") || "Stop Azan", BarService.getTooltipDirection(root.screen?.name))
+      onEntered: TooltipService.show(stopIconH, pluginApi?.tr("widget.stopAzan"), BarService.getTooltipDirection(root.screen?.name))
       onExited:  TooltipService.hide()
     }
 
@@ -288,7 +287,7 @@ Item {
         mouse.accepted = true
         mainInstance?.stopAzanFile()
       }
-      onEntered: TooltipService.show(stopIconV, pluginApi?.tr("widget.stopAzan") || "Stop Azan", BarService.getTooltipDirection(root.screen?.name))
+      onEntered: TooltipService.show(stopIconV, pluginApi?.tr("widget.stopAzan"), BarService.getTooltipDirection(root.screen?.name))
       onExited:  TooltipService.hide()
     }
   }
@@ -296,8 +295,8 @@ Item {
   NPopupContextMenu {
     id: contextMenu
     model: [
-      { "label": pluginApi?.tr("menu.openPanel") || "Open Prayer Times", "action": "open", "icon": "building-mosque" },
-      { "label": pluginApi?.tr("menu.settings") || "Widget Settings",    "action": "settings", "icon": "settings" }
+      { "label": pluginApi?.tr("menu.openPanel"), "action": "open", "icon": "building-mosque" },
+      { "label": pluginApi?.tr("menu.settings"),  "action": "settings", "icon": "settings" }
     ]
     onTriggered: function(action) {
       contextMenu.close()

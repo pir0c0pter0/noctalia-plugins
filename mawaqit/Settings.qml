@@ -27,14 +27,14 @@ ColumnLayout {
   // ── Location ──────────────────────────────────────────────────────────────
 
   NHeader {
-    label: pluginApi?.tr("settings.location.header") || "Location"
-    description: pluginApi?.tr("settings.location.desc") || "Used to fetch daily prayer times from the Aladhan API."
+    label: pluginApi?.tr("settings.location.header")
+    description: pluginApi?.tr("settings.location.desc")
   }
 
   NTextInput {
     Layout.fillWidth: true
-    label: pluginApi?.tr("settings.city.label") || "City"
-    description: pluginApi?.tr("settings.city.desc") || "Enter your city name in English."
+    label: pluginApi?.tr("settings.city.label")
+    description: pluginApi?.tr("settings.city.desc")
     placeholderText: "London"
     text: root.valueCity
     onTextChanged: root.valueCity = text
@@ -42,8 +42,8 @@ ColumnLayout {
 
   NTextInput {
     Layout.fillWidth: true
-    label: pluginApi?.tr("settings.country.label") || "Country"
-    description: pluginApi?.tr("settings.country.desc") || "Enter your country name or 2-letter code."
+    label: pluginApi?.tr("settings.country.label")
+    description: pluginApi?.tr("settings.country.desc")
     placeholderText: "UK"
     text: root.valueCountry
     onTextChanged: root.valueCountry = text
@@ -51,8 +51,8 @@ ColumnLayout {
 
   NComboBox {
     Layout.fillWidth: true
-    label: pluginApi?.tr("settings.method.label") || "Calculation Method"
-    description: pluginApi?.tr("settings.method.desc") || "Determines how prayer times are calculated."
+    label: pluginApi?.tr("settings.method.label")
+    description: pluginApi?.tr("settings.method.desc")
     currentKey: String(root.valueMethod)
     model: [
       { "key": "1",  "name": "University of Islamic Sciences, Karachi" },
@@ -76,8 +76,8 @@ ColumnLayout {
 
   NComboBox {
     Layout.fillWidth: true
-    label: pluginApi?.tr("settings.school.label") || "Asr Calculation School"
-    description: pluginApi?.tr("settings.school.desc") || "Shafi/Maliki/Hanbali uses shadow factor 1. Hanafi uses shadow factor 2, giving a later Asr time."
+    label: pluginApi?.tr("settings.school.label")
+    description: pluginApi?.tr("settings.school.desc")
     currentKey: String(root.valueSchool)
     model: [
       { "key": "0", "name": "Shafi / Maliki / Hanbali (Default)" },
@@ -91,14 +91,14 @@ ColumnLayout {
   // ── Calibration ───────────────────────────────────────────────────────────
 
   NHeader {
-    label: pluginApi?.tr("settings.calibration.header") || "Calibration"
-    description: pluginApi?.tr("settings.calibration.desc") || "Adjust the displayed Hijri date if it does not match your local moon sighting."
+    label: pluginApi?.tr("settings.calibration.header")
+    description: pluginApi?.tr("settings.calibration.desc")
   }
 
   NComboBox {
     Layout.fillWidth: true
-    label: pluginApi?.tr("settings.hijriDayOffset.label") || "Hijri Day Adjustment"
-    description: pluginApi?.tr("settings.hijriDayOffset.desc") || "Shift the displayed Hijri day if the API date does not match your local moon sighting."
+    label: pluginApi?.tr("settings.hijriDayOffset.label")
+    description: pluginApi?.tr("settings.hijriDayOffset.desc")
     currentKey: String(root.valueHijriDayOffset)
     model: [
       { "key": "-1", "name": "−1 day" },
@@ -113,14 +113,14 @@ ColumnLayout {
   // ── Calendar ──────────────────────────────────────────────────────────────
 
   NHeader {
-    label: pluginApi?.tr("settings.calendar.header") || "Calendar"
+    label: pluginApi?.tr("settings.calendar.header")
     Layout.bottomMargin: -Style.marginM
   }
 
   NComboBox {
     Layout.fillWidth: true
-    label: pluginApi?.tr("settings.weekStartDay.label") || "First day of week"
-    description: pluginApi?.tr("settings.weekStartDay.desc") || "Choose which day starts the calendar week. Also determines the Jumu'ah column highlight."
+    label: pluginApi?.tr("settings.weekStartDay.label")
+    description: pluginApi?.tr("settings.weekStartDay.desc")
     currentKey: String(root.valueWeekStartDay)
     model: [
       { "key": "6", "name": "Saturday" },
@@ -135,14 +135,14 @@ ColumnLayout {
   // ── Display ───────────────────────────────────────────────────────────────
 
   NHeader {
-    label: pluginApi?.tr("settings.display.header") || "Display"
+    label: pluginApi?.tr("settings.display.header")
     Layout.bottomMargin: -Style.marginM
   }
 
   NToggle {
     Layout.fillWidth: true
-    label: pluginApi?.tr("settings.showCountdown.label") || "Show countdown"
-    description: pluginApi?.tr("settings.showCountdown.desc") || "Show a live countdown to the next prayer in the bar instead of the static time."
+    label: pluginApi?.tr("settings.showCountdown.label")
+    description: pluginApi?.tr("settings.showCountdown.desc")
     checked: root.valueShowCountdown
     onToggled: checked => root.valueShowCountdown = checked
   }
@@ -152,14 +152,14 @@ ColumnLayout {
   // ── Notifications ─────────────────────────────────────────────────────────
 
   NHeader {
-    label: pluginApi?.tr("settings.notifications.header") || "Notifications"
+    label: pluginApi?.tr("settings.notifications.header")
     Layout.bottomMargin: -Style.marginM
   }
 
   NToggle {
     Layout.fillWidth: true
-    label: pluginApi?.tr("settings.showNotifications.label") || "Prayer notifications"
-    description: pluginApi?.tr("settings.notifications.desc") || "Show a notification when each prayer time begins."
+    label: pluginApi?.tr("settings.showNotifications.label")
+    description: pluginApi?.tr("settings.notifications.desc")
     checked: root.valueShowNotifications
     onToggled: checked => root.valueShowNotifications = checked
   }
@@ -169,14 +169,14 @@ ColumnLayout {
   // ── Azan ──────────────────────────────────────────────────────────────────
 
   NHeader {
-    label: pluginApi?.tr("settings.azan.header") || "Azan"
+    label: pluginApi?.tr("settings.azan.header")
     Layout.bottomMargin: -Style.marginM
   }
 
   NToggle {
     Layout.fillWidth: true
-    label: pluginApi?.tr("settings.playAzan.label") || "Play Azan"
-    description: pluginApi?.tr("settings.azan.desc") || "Play azan audio when a prayer time begins."
+    label: pluginApi?.tr("settings.playAzan.label")
+    description: pluginApi?.tr("settings.azan.desc")
     checked: root.valuePlayAzan
     onToggled: checked => {
       root.valuePlayAzan = checked
@@ -195,13 +195,13 @@ ColumnLayout {
 
     NComboBox {
       Layout.fillWidth: true
-      label: pluginApi?.tr("settings.azanFile.label") || "Azan"
-      description: pluginApi?.tr("settings.azanFile.desc") || "Select which azan to play."
+      label: pluginApi?.tr("settings.azanFile.label")
+      description: pluginApi?.tr("settings.azanFile.desc")
       currentKey: root.valueAzanFile
       model: [
-        { "key": "azan1.mp3", "name": pluginApi?.tr("settings.azan1") || "Azan 1" },
-        { "key": "azan2.mp3", "name": pluginApi?.tr("settings.azan2") || "Azan 2" },
-        { "key": "azan3.mp3", "name": pluginApi?.tr("settings.azan3") || "Azan 3" }
+        { "key": "azan1.mp3", "name": pluginApi?.tr("settings.azan1") },
+        { "key": "azan2.mp3", "name": pluginApi?.tr("settings.azan2") },
+        { "key": "azan3.mp3", "name": pluginApi?.tr("settings.azan3") }
       ]
       onSelected: key => {
         root.valueAzanFile = key
@@ -219,8 +219,8 @@ ColumnLayout {
       Layout.preferredWidth: Math.round(Style.baseWidgetSize * 1.1 * Style.uiScaleRatio)
       icon: root.previewing ? "player-stop-filled" : "player-play-filled"
       tooltipText: root.previewing
-        ? (pluginApi?.tr("settings.azan.stop") || "Stop preview")
-        : (pluginApi?.tr("settings.azan.preview") || "Preview azan")
+        ? pluginApi?.tr("settings.azan.stop")
+        : pluginApi?.tr("settings.azan.preview")
       onClicked: {
         const main = pluginApi?.mainInstance
         if (!main) return

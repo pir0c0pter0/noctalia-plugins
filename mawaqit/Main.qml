@@ -134,7 +134,6 @@ Item {
     onTriggered: { if (!_xhr) fetchOrProcess() }
   }
 
-  // FIX: log before increment so both retry number and interval are correct
   function scheduleRetry() {
     const idx = Math.min(_retryCount, _retryIntervals.length - 1)
     Logger.d("Mawaqit", "Retry", _retryCount + 1, "in", _retryIntervals[idx], "s")
@@ -183,8 +182,6 @@ Item {
   }
 
   // ── Cache helpers (pluginSettings as store) ───────────────────────────────
-  // FIX: store method/school as String() — pluginSettings reloads JSON numbers as strings,
-  //      so comparing int !== string always fails and busts the cache every boot.
   function saveCache(weekData) {
     try {
       pluginApi.pluginSettings._cacheData      = JSON.stringify(weekData)
@@ -202,7 +199,6 @@ Item {
     try {
       const data = cfg._cacheData
       if (!data) return null
-      // FIX: compare as String() on both sides to survive JSON reload
       if (cfg._cacheCity    !== city)           return null
       if (cfg._cacheCountry !== country)        return null
       if (cfg._cacheMethod  !== String(method)) return null
@@ -211,7 +207,6 @@ Item {
       if (!week || !week.length) return null
       const today = new Date().toISOString().substring(0, 10)
       for (const entry of week) {
-        // entry.date is "DD-MM-YYYY" from API
         const parts = entry.date.split("-")
         const iso = `${parts[2]}-${parts[1]}-${parts[0]}`
         if (iso === today) return entry
@@ -226,7 +221,6 @@ Item {
   // ── Fetch logic ───────────────────────────────────────────────────────────
   property var _xhr: null
 
-  // Check cache first — only fetch if today's data is missing
   function fetchOrProcess() {
     const cached = getTodayFromCache()
     if (cached) {
@@ -237,7 +231,6 @@ Item {
     }
   }
 
-  // Force fresh fetch — clears prayer cache + all cal cache (city/method changed)
   function forceRefresh() {
     try {
       pluginApi.pluginSettings._cacheData = null
@@ -248,12 +241,10 @@ Item {
     fetchWeek()
   }
 
-  // Expose for manual refresh button
   function fetchPrayerTimes() { forceRefresh() }
 
-  // Fetch 7 days via XHR — no curl subprocess, instant failure on no network
   function fetchWeek() {
-    if (_xhr) return  // already in flight
+    if (_xhr) return
     isLoading = true; hasError = false
     const today = new Date()
     const from  = Qt.formatDate(today, "dd-MM-yyyy")
@@ -292,7 +283,7 @@ Item {
       } else if (xhr.status === 0) {
         Logger.w("Mawaqit", "Network unavailable, scheduling retry")
         hasError = !prayerTimings
-        errorMessage = pluginApi?.tr("error.network") || "Network unavailable"
+        errorMessage = pluginApi?.tr("error.network")
         scheduleRetry()
       } else {
         Logger.w("Mawaqit", "HTTP error:", xhr.status)
@@ -303,7 +294,6 @@ Item {
     xhr.send()
   }
 
-  // Fallback: single day fetch using the timingsByCity endpoint
   function fetchSingleDay() {
     if (_xhr) return
     const url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${method}&school=${school}`
@@ -330,7 +320,7 @@ Item {
         } catch(e) { onFetchFailed(e.message) }
       } else if (xhr.status === 0) {
         hasError = !prayerTimings
-        errorMessage = pluginApi?.tr("error.network") || "Network unavailable"
+        errorMessage = pluginApi?.tr("error.network")
         scheduleRetry()
       } else {
         onFetchFailed("HTTP " + xhr.status)
@@ -343,7 +333,7 @@ Item {
   function onFetchFailed(reason) {
     Logger.w("Mawaqit", "Fetch failed:", reason)
     hasError = !prayerTimings
-    errorMessage = pluginApi?.tr("error.network") || "Network request failed"
+    errorMessage = pluginApi?.tr("error.network")
     scheduleRetry()
   }
 
@@ -434,12 +424,10 @@ Item {
     if (cached) {
       Logger.d("Mawaqit", "Cache hit on startup — loading instantly")
       processEntry(cached)
-      // Silent background refresh after 5s to let network init
       retryTimer.interval = 5000
       retryTimer.restart()
     } else {
       Logger.d("Mawaqit", "No cache — fetching immediately")
-      // Small delay so QML engine fully initializes
       retryTimer.interval = 500
       retryTimer.restart()
     }

@@ -54,7 +54,6 @@ Item {
   readonly property bool prayerNow: secondsToNext === 0 && nextPrayerName !== ""
 
   // ── Week / Jumu'ah ────────────────────────────────────────────────────
-  // weekStartDay: 6=Sat, 0=Sun, 1=Mon (JS getDay() values)
   readonly property int  weekStartDay: parseInt(cfg.weekStartDay ?? defaults.weekStartDay ?? 1)
   readonly property bool isJumuah:     new Date().getDay() === 5
 
@@ -135,14 +134,12 @@ Item {
     "10-1": "Eid al-Fitr",     "12-10": "Eid al-Adha"
   })
 
-  // ── Arabic greeting map (shown on the day itself, tier 0 = highest priority) ──
   readonly property var arabicGreetings: ({
     "9-1":  "رمضان كريم",
     "10-1": "عيدكم مبارك",
     "12-10": "عيدكم مبارك"
   })
 
-  // Arabic names for hint banner (non-greeting events)
   readonly property var hintNamesAr: ({
     "Islamic New Year": "رأس السنة الهجرية",
     "Ashura":           "عاشوراء",
@@ -158,7 +155,6 @@ Item {
 
   function getHintEvent(m, d, daysAway) {
     const key = m + "-" + d
-    // Arabic greeting — highest priority, today only
     if (arabicGreetings[key] && daysAway === 0) return { name: arabicGreetings[key], daysAway: 0, tier: 0 }
     if (hintTier1[key] && daysAway <= 7)  return { name: hintNamesAr[hintTier1[key]] || hintTier1[key], daysAway: daysAway, tier: 1 }
     if (hintTier2[key] && daysAway <= 3)  return { name: hintNamesAr[hintTier2[key]] || hintTier2[key], daysAway: daysAway, tier: 2 }
@@ -171,7 +167,6 @@ Item {
 
   readonly property var upcomingEvent: {
     if (!hijriDay || !hijriMonth || !hijriYear) return null
-    // Jumu'ah greeting — only if no higher Islamic event today
     const todayKey = hijriMonth + "-" + hijriDay
     if (isJumuah && !arabicGreetings[todayKey]) return { name: "جمعة مباركة", daysAway: 0, tier: 0 }
     let best = null
@@ -195,7 +190,7 @@ Item {
     return best
   }
 
-  // ── Calendar persistent cache (3-tier: memory → pluginSettings → XHR) ────
+  // ── Calendar persistent cache ────────────────────────────────────────
   property var memoryCalCache: ({})
 
   function saveCalCache(m, y, data) {
@@ -215,7 +210,7 @@ Item {
       if (!raw) return null
       const entry = JSON.parse(raw)
       if (!entry?.data || !entry?.timestamp) return null
-      if (Date.now() - entry.timestamp > 2592000000) return null  // 30 days
+      if (Date.now() - entry.timestamp > 2592000000) return null
       memoryCalCache[key] = entry.data
       return entry.data
     } catch(e) { return null }
@@ -305,13 +300,13 @@ Item {
       RowLayout {
         Layout.fillWidth: true; spacing: Style.marginM
         NIcon { icon: "building-mosque"; pointSize: Style.fontSizeXL; color: Color.mPrimary; Layout.alignment: Qt.AlignVCenter }
-        NText { text: pluginApi?.tr("panel.title") || "Prayer Times"; pointSize: Style.fontSizeL; font.weight: Font.Bold; color: Color.mOnSurface; Layout.alignment: Qt.AlignVCenter }
+        NText { text: pluginApi?.tr("panel.title"); pointSize: Style.fontSizeL; font.weight: Font.Bold; color: Color.mOnSurface; Layout.alignment: Qt.AlignVCenter }
         Item { Layout.fillWidth: true }
         NIconButton {
           icon: "refresh"
           tooltipText: tabBar.currentIndex === 0
-            ? (pluginApi?.tr("panel.refresh") || "Refresh prayer times")
-            : (pluginApi?.tr("calendar.refresh") || "Refresh month")
+            ? pluginApi?.tr("panel.refresh")
+            : pluginApi?.tr("calendar.refresh")
           enabled: tabBar.currentIndex === 0 ? !isLoading : !calItem.calLoading
           onClicked: {
             if (tabBar.currentIndex === 0) mainInstance?.fetchPrayerTimes()
@@ -320,12 +315,12 @@ Item {
           Layout.alignment: Qt.AlignVCenter
         }
         NIconButton {
-          icon: "settings"; tooltipText: pluginApi?.tr("menu.settings") || "Settings"
+          icon: "settings"; tooltipText: pluginApi?.tr("menu.settings")
           onClicked: { const screen = pluginApi?.panelOpenScreen; if (screen) { pluginApi.closePanel(screen); Qt.callLater(() => BarService.openPluginSettings(screen, pluginApi.manifest)) } }
           Layout.alignment: Qt.AlignVCenter
         }
         NIconButton {
-          icon: "x"; tooltipText: pluginApi?.tr("panel.close") || "Close"
+          icon: "x"; tooltipText: pluginApi?.tr("panel.close")
           onClicked: { const screen = pluginApi?.panelOpenScreen; if (screen) pluginApi.closePanel(screen) }
           Layout.alignment: Qt.AlignVCenter
         }
@@ -352,8 +347,8 @@ Item {
         Layout.fillWidth: true; distributeEvenly: true
         color: "transparent"
         currentIndex: tabView.currentIndex
-        NTabButton { text: pluginApi?.tr("panel.tab.prayers") || "Prayer Times"; tabIndex: 0; checked: tabBar.currentIndex === 0 }
-        NTabButton { text: pluginApi?.tr("panel.tab.calendar") || "Calendar";    tabIndex: 1; checked: tabBar.currentIndex === 1 }
+        NTabButton { text: pluginApi?.tr("panel.tab.prayers"); tabIndex: 0; checked: tabBar.currentIndex === 0 }
+        NTabButton { text: pluginApi?.tr("panel.tab.calendar"); tabIndex: 1; checked: tabBar.currentIndex === 1 }
       }
 
       // ── Hint banner ────────────────────────────────────────────────────
@@ -370,8 +365,8 @@ Item {
           NText {
             text: {
               const d = upcomingEvent?.daysAway ?? -1
-              if (d === 0) return pluginApi?.tr("panel.today") || "Today"
-              if (d === 1) return pluginApi?.tr("panel.tomorrow") || "Tomorrow"
+              if (d === 0) return pluginApi?.tr("panel.today")
+              if (d === 1) return pluginApi?.tr("panel.tomorrow")
               return "in " + d + " days"
             }
             pointSize: Style.fontSizeXS; color: Color.mTertiary; opacity: 0.6
@@ -395,7 +390,6 @@ Item {
         Layout.preferredHeight: tabBar.currentIndex === 0 ? prayerTab.implicitHeight : calItem.implicitHeight
         currentIndex: tabBar.currentIndex
 
-        // Lazy-init: only fetch calendar when user opens the tab
         onCurrentIndexChanged: {
           if (currentIndex === 1 && !calItem.calReady && hijriDay > 0 && gregorianDateStr !== "")
             Qt.callLater(calItem.initCalendar)
@@ -433,8 +427,8 @@ Item {
                   if (!nextPrayerName) return ""
                   let label = nextPrayerName
                   if (nextPrayerName === "Dhuhr" && isJumuah)
-                    label = pluginApi?.tr("panel.jumuah") || "Jumu'ah"
-                  return prayerNow ? `${label} — ${pluginApi?.tr("panel.now") || "Now"}` : `${label} in`
+                    label = pluginApi?.tr("panel.jumuah")
+                  return prayerNow ? `${label} — ${pluginApi?.tr("panel.now")}` : `${label} in`
                 }
                 pointSize: Style.fontSizeS; color: countdownColor; opacity: prayerNow ? 0.7 : 1.0
               }
@@ -448,7 +442,7 @@ Item {
           Item {
             Layout.fillWidth: true; implicitHeight: Style.baseWidgetSize; visible: isLoading || hasError
             NBusyIndicator { anchors.centerIn: parent; visible: isLoading; running: isLoading }
-            NText { anchors.centerIn: parent; visible: hasError && !isLoading; text: errorMessage || (pluginApi?.tr("error.generic") || "Failed to load prayer times."); color: Color.mError; pointSize: Style.fontSizeS; wrapMode: Text.Wrap; horizontalAlignment: Text.AlignHCenter; width: parent.width }
+            NText { anchors.centerIn: parent; visible: hasError && !isLoading; text: errorMessage || pluginApi?.tr("error.generic"); color: Color.mError; pointSize: Style.fontSizeS; wrapMode: Text.Wrap; horizontalAlignment: Text.AlignHCenter; width: parent.width }
           }
 
           NScrollView {
@@ -479,7 +473,7 @@ Item {
                     anchors { fill: parent; leftMargin: Style.marginM; rightMargin: Style.marginM; topMargin: Style.marginS; bottomMargin: Style.marginS }
                     spacing: Style.marginM
                     NIcon { icon: modelData.icon; pointSize: Style.fontSizeM; color: itemColor; Layout.alignment: Qt.AlignVCenter }
-                    NText { text: pluginApi?.tr(modelData.labelKey) || modelData.key; pointSize: Style.fontSizeM; font.weight: isBold ? Style.fontWeightSemiBold : Style.fontWeightRegular; color: itemColor; Layout.fillWidth: true; Layout.alignment: Qt.AlignVCenter }
+                    NText { text: pluginApi?.tr(modelData.labelKey); pointSize: Style.fontSizeM; font.weight: isBold ? Style.fontWeightSemiBold : Style.fontWeightRegular; color: itemColor; Layout.fillWidth: true; Layout.alignment: Qt.AlignVCenter }
                     NText { text: rawTime ? formatTime(rawTime) : "—"; pointSize: Style.fontSizeM; font.weight: isBold ? Style.fontWeightBold : Style.fontWeightRegular; color: itemColor; Layout.alignment: Qt.AlignVCenter }
                   }
                 }
@@ -493,7 +487,7 @@ Item {
             ColumnLayout {
               anchors.centerIn: parent; spacing: Style.marginM
               NIcon { icon: "building-mosque"; pointSize: Style.fontSizeXXXL; color: Color.mSecondary; Layout.alignment: Qt.AlignHCenter }
-              NText { text: pluginApi?.tr("panel.configure") || "Configure your city in settings"; color: Color.mSecondary; pointSize: Style.fontSizeM; wrapMode: Text.Wrap; horizontalAlignment: Text.AlignHCenter; Layout.alignment: Qt.AlignHCenter }
+              NText { text: pluginApi?.tr("panel.configure"); color: Color.mSecondary; pointSize: Style.fontSizeM; wrapMode: Text.Wrap; horizontalAlignment: Text.AlignHCenter; Layout.alignment: Qt.AlignHCenter }
             }
           }
         }
@@ -518,14 +512,11 @@ Item {
             const yy = y + 4800 - a; const mm = m + 12 * a - 3
             return d + Math.floor((153*mm+2)/5) + 365*yy + Math.floor(yy/4) - Math.floor(yy/100) + Math.floor(yy/400) - 32045
           }
-          // Returns column index (0 = first day of week) for a given JDN
-          // weekStartDay is JS getDay(): 0=Sun,1=Mon,6=Sat -> JDN offsets: 6,0,5
           function jdnOffset() {
-            const ws = root.weekStartDay  // JS getDay() value
+            const ws = root.weekStartDay
             return (ws + 6) % 7
           }
           function jdnToWeekday(jdn) { return (jdn % 7 - jdnOffset() + 7) % 7 }
-          // Column index of Friday (Jumu'ah) for current week start setting
           function jumuahColumn() { return (4 - jdnOffset() + 7) % 7 }
           function parseToJDN(str) {
             const mo = {"Jan":1,"Feb":2,"Mar":3,"Apr":4,"May":5,"Jun":6,"Jul":7,"Aug":8,"Sep":9,"Oct":10,"Nov":11,"Dec":12}
@@ -704,12 +695,12 @@ Item {
             // Back to today
             NText {
               visible: !calItem.isCurrentMonth
-              text: "↩ " + (pluginApi?.tr("calendar.today") || "Back to today")
+              text: "↩ " + pluginApi?.tr("calendar.today")
               pointSize: Style.fontSizeXS; color: Color.mPrimary; Layout.alignment: Qt.AlignHCenter
               MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: calItem.navigate("reset") }
             }
 
-            // Weekday headers — rotate based on weekStartDay setting
+            // Weekday headers
             Row {
               Layout.fillWidth: true
               Repeater {
