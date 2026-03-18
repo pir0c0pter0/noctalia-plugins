@@ -15,17 +15,18 @@ NIconButton {
     property var cfg:      pluginApi?.pluginSettings                      || ({})
     property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
-    property string iconColorKey: cfg.iconColor ?? defaults.iconColor ?? "none"
+    // Use "none" as sentinel — when none, omit colorFg so Noctalia's color scheme applies
+    property string iconColorKey: cfg.iconColor ?? "none"
     readonly property color iconColor: Color.resolveColorKey(iconColorKey)
+    readonly property bool hasCustomColor: iconColorKey !== "none"
 
     icon: "sparkles"
-    tooltipText: "Pick a niri animation preset"
+    tooltipText: pluginApi?.tr("widget.tooltip") || "Pick a niri animation preset"
     tooltipDirection: BarService.getTooltipDirection(screen?.name)
     baseSize: Style.getCapsuleHeightForScreen(screen?.name)
-    applyUiScale: false
     customRadius: Style.radiusL
     colorBg: Style.capsuleColor
-    colorFg: iconColor
+    colorFg: hasCustomColor ? iconColor : Color.mOnSurface
     border.color: Style.capsuleBorderColor
     border.width: Style.capsuleBorderWidth
 
@@ -38,7 +39,7 @@ NIconButton {
     NPopupContextMenu {
         id: contextMenu
         model: [
-            { "label": "Settings", "action": "settings", "icon": "settings" }
+            { "label": I18n.tr("actions.widget-settings"), "action": "settings", "icon": "settings" }
         ]
         onTriggered: function(action) {
             contextMenu.close()

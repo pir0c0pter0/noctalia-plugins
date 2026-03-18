@@ -27,13 +27,22 @@ Item {
     property string pendingFile: ""
     property string statusMessage: ""
     property bool statusIsError: false
-    property string resolvedAnimDir: ""
-    property string resolvedTargetFile: ""
     property var _fileBuffer: []
 
+    property string home: ""
+
+    readonly property string resolvedAnimDir: {
+        var folder = pluginApi?.pluginSettings?.animationsFolder || ""
+        var resolved = folder !== "" ? folder.replace("~", home) : `${home}/.config/niri/animations`
+        return resolved.replace(/\/+$/, "")
+    }
+    readonly property string resolvedTargetFile: {
+        var target = pluginApi?.pluginSettings?.targetFile || ""
+        return target !== "" ? target.replace("~", home) : `${home}/.config/niri/animations.kdl`
+    }
     readonly property string folderName: resolvedAnimDir !== ""
-    ? resolvedAnimDir.split("/").pop()
-    : "animations"
+        ? resolvedAnimDir.replace(/\/+$/, "").split("/").pop()
+        : "animations"
 
     // ── Processes ─────────────────────────────────────────────────────────────
 
@@ -42,19 +51,14 @@ Item {
         command: ["bash", "-c", "echo -n $HOME"]
         stdout: SplitParser {
             onRead: data => {
-                var home = data.trim()
-                var folder = pluginApi?.pluginSettings?.animationsFolder || ""
-                root.resolvedAnimDir = folder !== "" ? folder.replace("~", home) : home + "/.config/niri/animations"
-                var target = pluginApi?.pluginSettings?.targetFile || ""
-                root.resolvedTargetFile = target !== "" ? target.replace("~", home) : home + "/.config/niri/animations.kdl"
-
+                root.home = data.trim()
+                var targetBasename = root.resolvedTargetFile.split("/").pop()
                 listFiles.command = ["bash", "-c",
-                "ls \"" + root.resolvedAnimDir + "\"/*.kdl 2>/dev/null | xargs -n1 basename 2>/dev/null"]
+                    `ls "${root.resolvedAnimDir}"/*.kdl 2>/dev/null | xargs -n1 basename 2>/dev/null | grep -v "^${targetBasename}$"`]
                 listFiles.running = true
 
                 readCurrentInclude.command = ["bash", "-c",
-                "grep -oP '" + root.folderName + "/[^\"/]+\\.kdl' \"" + root.resolvedTargetFile
-                + "\" 2>/dev/null | head -1 | xargs -I{} basename {} 2>/dev/null || true"]
+                    `grep -oP '${root.folderName}/[^"/]+\\.kdl' "${root.resolvedTargetFile}" 2>/dev/null | head -1 | xargs -I{} basename {} 2>/dev/null || true`]
                 readCurrentInclude.running = true
             }
         }
@@ -92,26 +96,30 @@ Item {
             if (exitCode === 0) {
                 root.activeFile = root.pendingFile
                 root.statusIsError = false
-                root.statusMessage = "Applied: " + root.pendingFile
-                ToastService.showNotice("Animation set to " + root.pendingFile)
+                root.statusMessage = pluginApi?.tr("panel.applied", { file: root.pendingFile }) || `Applied: ${root.pendingFile}`
+                ToastService.showNotice(pluginApi?.tr("panel.animationSet", { file: root.pendingFile }) || `Animation set to ${root.pendingFile}`)
             } else {
                 root.statusIsError = true
-                root.statusMessage = "Write failed (exit " + exitCode + ")"
-                ToastService.showError("Failed to write to animations.kdl")
+                root.statusMessage = pluginApi?.tr("panel.writeFailed", { code: exitCode }) || `Write failed (exit ${exitCode})`
+                ToastService.showError(pluginApi?.tr("panel.writeFailedToast") || "Failed to write to target file")
             }
         }
     }
 
     function applyFile(filename) {
         if (root.resolvedTargetFile === "" || root.writing) return
-            root.pendingFile = filename
-            root.writing = true
-            root.statusMessage = ""
-            var folder = root.folderName
-            writeInclude.command = ["bash", "-c",
-            "sed -i '/include.*" + folder + "\\/.*\\.kdl/d' \"" + root.resolvedTargetFile + "\" && "
-            + "printf 'include \"./" + folder + "/" + filename + "\"\\n' >> \"" + root.resolvedTargetFile + "\""]
-            writeInclude.running = true
+        root.pendingFile = filename
+        root.writing = true
+        root.statusMessage = ""
+
+        var folder = root.folderName
+        var target = root.resolvedTargetFile
+
+        writeInclude.command = [
+            "bash", "-c",
+            `sed -i '/^include "\\.\\/` + folder + `\\/.*\\.kdl"$/d' '` + target + `' && sed -i -e '$a\\' '` + target + `' && printf 'include "./${folder}/${filename}"\\n' >> '` + target + `'`
+        ]
+        writeInclude.running = true
     }
 
     Component.onCompleted: { resolveHome.running = true }
@@ -127,7 +135,7 @@ Item {
             anchors { fill: parent; margins: Style.marginL }
             spacing: Style.marginM
 
-            // ── Header row ───────────────────────────────────────────────────
+            // ── Header ───────────────────────────────────────────────────────
             RowLayout {
                 Layout.fillWidth: true
                 spacing: Style.marginM
@@ -137,20 +145,18 @@ Item {
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 2
-
                     NText {
-                        text: "Niri Animation Preset"
-                        pointSize: Style.fontSizeL
-                        font.weight: Font.Bold
-                        color: Color.mOnSurface
+                        text: pluginApi?.tr("panel.title") || "Niri Animation Preset"
+                        pointSize: Style.fontSizeL; font.weight: Font.Bold; color: Color.mOnSurface
                         Layout.fillWidth: true
                     }
                     NText {
-                        text: root.kdlFiles.length > 0
-                        ? root.kdlFiles.length + " presets available"
-                        : root.loading ? "Scanning…" : "No presets found"
-                        pointSize: Style.fontSizeXS
-                        color: Color.mOnSurfaceVariant
+                        text: root.loading
+                            ? (pluginApi?.tr("panel.scanning") || "Scanning…")
+                            : root.kdlFiles.length > 0
+                                ? (pluginApi?.tr("panel.presetsAvailable", { count: root.kdlFiles.length }) || `${root.kdlFiles.length} presets available`)
+                                : (pluginApi?.tr("panel.noPresetsFound") || "No presets found")
+                        pointSize: Style.fontSizeXS; color: Color.mOnSurfaceVariant
                     }
                 }
 
@@ -165,7 +171,7 @@ Item {
             Rectangle {
                 Layout.fillWidth: true
                 height: pathCol.implicitHeight + Style.marginM * 2
-                color: Qt.rgba(Color.mSurfaceVariant.r, Color.mSurfaceVariant.g, Color.mSurfaceVariant.b, 0.5)
+                color: Color.mSurfaceVariant
                 radius: Style.radiusM
 
                 ColumnLayout {
@@ -178,10 +184,8 @@ Item {
                         NIcon { icon: "folder-open"; color: Color.mOnSurfaceVariant; pointSize: Style.fontSizeS }
                         NText {
                             text: root.resolvedAnimDir || "~/.config/niri/animations"
-                            pointSize: Style.fontSizeXS
-                            color: Color.mOnSurfaceVariant
-                            elide: Text.ElideLeft
-                            Layout.fillWidth: true
+                            pointSize: Style.fontSizeXS; color: Color.mOnSurfaceVariant
+                            elide: Text.ElideLeft; Layout.fillWidth: true
                         }
                     }
                     RowLayout {
@@ -189,10 +193,8 @@ Item {
                         NIcon { icon: "file-code"; color: Color.mOnSurfaceVariant; pointSize: Style.fontSizeS }
                         NText {
                             text: root.resolvedTargetFile || "~/.config/niri/animations.kdl"
-                            pointSize: Style.fontSizeXS
-                            color: Color.mOnSurfaceVariant
-                            elide: Text.ElideLeft
-                            Layout.fillWidth: true
+                            pointSize: Style.fontSizeXS; color: Color.mOnSurfaceVariant
+                            elide: Text.ElideLeft; Layout.fillWidth: true
                         }
                     }
                 }
@@ -216,22 +218,19 @@ Item {
                     }
                     NText {
                         id: statusText
-                        text: root.statusMessage
-                        pointSize: Style.fontSizeS
+                        text: root.statusMessage; pointSize: Style.fontSizeS
                         color: root.statusIsError ? Qt.rgba(1,0.3,0.3,1) : Color.mPrimary
-                        wrapMode: Text.WordWrap
-                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap; Layout.fillWidth: true
                     }
                 }
             }
 
             // ── File list ────────────────────────────────────────────────────
             Rectangle {
-                color: Qt.rgba(Color.mSurfaceVariant.r, Color.mSurfaceVariant.g, Color.mSurfaceVariant.b, 0.5)
-                radius: Style.radiusL
-                clip: true
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                color: Qt.rgba(Color.mSurfaceVariant.r, Color.mSurfaceVariant.g, Color.mSurfaceVariant.b, 0.5)
+                radius: Style.radiusL
 
                 // Loading
                 ColumnLayout {
@@ -239,7 +238,10 @@ Item {
                     visible: root.loading
                     spacing: Style.marginM
                     NIcon { icon: "loader"; color: Color.mPrimary; pointSize: Style.fontSizeXXL; Layout.alignment: Qt.AlignHCenter }
-                    NText { text: "Scanning animations…"; color: Color.mOnSurfaceVariant; pointSize: Style.fontSizeM; Layout.alignment: Qt.AlignHCenter }
+                    NText {
+                        text: pluginApi?.tr("panel.scanningAnimations") || "Scanning animations…"
+                        color: Color.mOnSurfaceVariant; pointSize: Style.fontSizeM; Layout.alignment: Qt.AlignHCenter
+                    }
                 }
 
                 // Empty
@@ -249,10 +251,9 @@ Item {
                     spacing: Style.marginM
                     NIcon { icon: "folder-open"; color: Color.mOnSurfaceVariant; pointSize: Style.fontSizeXXL; Layout.alignment: Qt.AlignHCenter }
                     NText {
-                        text: "No .kdl files found"
+                        text: pluginApi?.tr("panel.noFilesFound") || "No .kdl files found"
                         color: Color.mOnSurfaceVariant; pointSize: Style.fontSizeM
-                        horizontalAlignment: Text.AlignHCenter
-                        Layout.alignment: Qt.AlignHCenter
+                        horizontalAlignment: Text.AlignHCenter; Layout.alignment: Qt.AlignHCenter
                     }
                 }
 
@@ -279,8 +280,8 @@ Item {
                             property bool isHovered: false
 
                             color: isActive
-                            ? Qt.rgba(Color.mPrimary.r, Color.mPrimary.g, Color.mPrimary.b, 0.18)
-                            : isHovered ? Color.mSurface : "transparent"
+                                ? Qt.rgba(Color.mPrimary.r, Color.mPrimary.g, Color.mPrimary.b, 0.18)
+                                : isHovered ? Color.mSurface : "transparent"
                             radius: Style.radiusM
                             Behavior on color { ColorAnimation { duration: 100 } }
 
@@ -288,11 +289,8 @@ Item {
                                 anchors { fill: parent; leftMargin: Style.marginM; rightMargin: Style.marginM }
                                 spacing: Style.marginM
 
-                                // Active indicator stripe
                                 Rectangle {
-                                    width: 3
-                                    height: parent.height * 0.5
-                                    radius: 2
+                                    width: 3; height: parent.height * 0.5; radius: 2
                                     color: Color.mPrimary
                                     opacity: fileRow.isActive ? 1 : 0
                                     Behavior on opacity { NumberAnimation { duration: 150 } }
@@ -307,13 +305,10 @@ Item {
                                     elide: Text.ElideRight
                                 }
 
-                                // Writing spinner or active check
                                 NIcon {
                                     icon: root.writing && root.pendingFile === modelData ? "loader" : "check"
-                                    color: Color.mPrimary
-                                    pointSize: Style.fontSizeM
-                                    visible: (root.writing && root.pendingFile === modelData) || fileRow.isActive
-                                    opacity: fileRow.isActive && !root.writing ? 1 : root.writing && root.pendingFile === modelData ? 1 : 0
+                                    color: Color.mPrimary; pointSize: Style.fontSizeM
+                                    opacity: fileRow.isActive || (root.writing && root.pendingFile === modelData) ? 1 : 0
                                     Behavior on opacity { NumberAnimation { duration: 150 } }
                                 }
                             }
@@ -324,7 +319,9 @@ Item {
                                 cursorShape: Qt.PointingHandCursor
                                 onEntered: fileRow.isHovered = true
                                 onExited:  fileRow.isHovered = false
-                                onClicked: { if (!root.writing) root.applyFile(modelData) }
+                                onClicked: {
+                                    if (!root.writing) root.applyFile(modelData)
+                                }
                             }
                         }
                     }
