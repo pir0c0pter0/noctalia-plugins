@@ -26,9 +26,27 @@
     "hint": "Ctrl+S save"
   },
   "settings": {
-    "notesDir": {
-      "label": "Notes Directory",
-      "desc": "Path to the folder where notes are stored."
+    "saved": "Sticky Notes settings saved",
+    "syncNow": "Sync now",
+    "syncEnabled": {
+      "label": "Enable GitHub Gist sync",
+      "desc": "Automatically sync notes to a private gist after changes."
+    },
+    "githubToken": {
+      "label": "GitHub Token",
+      "desc": "Personal access token with gist permission.",
+      "placeholder": "ghp_xxx",
+      "help": "The plugin creates or reuses a private gist named `noctalia-sticky-notes`. Each note is stored as one file whose filename is the note id."
+    }
+  },
+  "sync": {
+    "syncing": "Syncing notes to GitHub Gist...",
+    "success": {
+      "created": "Created gist and synced notes.",
+      "updated": "Synced notes to GitHub Gist."
+    },
+    "errors": {
+      "missing-token": "GitHub token is required before syncing."
     }
   }
 }

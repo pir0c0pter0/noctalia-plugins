@@ -168,6 +168,10 @@ Item {
     }
     root.pluginApi.pluginSettings.notes = JSON.stringify(notes);
     root.pluginApi.saveSettings();
+
+    if (root.pluginApi.mainInstance) {
+      root.pluginApi.mainInstance.syncNotesToGist(notes, true);
+    }
   }
 
   // ── UI ─────────────────────────────────────────────────
