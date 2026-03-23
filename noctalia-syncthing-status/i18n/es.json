@@ -1,0 +1,75 @@
+{
+    "state": {
+        "idle": "Sincronizado",
+        "syncing": "Sincronizando",
+        "paused": "Pausado",
+        "disconnected": "Desconectado",
+        "offline": "Sin conexión",
+        "unauthorized": "No autorizado",
+        "error": "Error",
+        "unconfigured": "No configurado",
+        "disabled": "Desactivado"
+    },
+    "summary": {
+        "disabled": "La consulta del plugin está desactivada",
+        "idle-devices": "%1/%2 dispositivos conectados",
+        "idle-no-devices": "No hay dispositivos remotos configurados",
+        "syncing-items": "%1 elementos pendientes",
+        "syncing-folders": "%1 carpetas activas",
+        "paused": "Todas las carpetas monitoreadas están pausadas",
+        "disconnected": "No hay dispositivos remotos conectados",
+        "offline": "Syncthing GUI/API no es accesible",
+        "unauthorized": "Syncthing rechazó el API key",
+        "error": "Syncthing reportó errores en carpetas o del sistema",
+        "unconfigured": "Configure la GUI URL/API key o indique la ruta a config.xml"
+    },
+    "bar": {
+        "enable": "Activar Syncthing Status",
+        "disable": "Desactivar Syncthing Status",
+        "refresh": "Actualizar ahora",
+        "settings": "Ajustes"
+    },
+    "panel": {
+        "title": "Syncthing",
+        "refresh": "Actualizar",
+        "devices": "Dispositivos",
+        "folders": "Carpetas",
+        "pending": "Pendiente",
+        "no-folders": "No hay carpetas monitoreadas",
+        "details": "Detalles",
+        "recent-errors": "Errores recientes",
+        "last-check": "Última comprobación",
+        "url": "GUI URL",
+        "config-path": "Ruta de configuración",
+        "api-source": "Origen del API key",
+        "folder-state": "%1  (%2 elementos)"
+    },
+    "settings": {
+        "enabled": "Activar plugin",
+        "enabled-desc": "Consultar Syncthing periódicamente y mostrar el estado en la barra/panel",
+        "url": "GUI URL",
+        "url-desc": "Opcional. Dejar en blanco para detección automática desde config.xml de Syncthing",
+        "api-key": "API key",
+        "api-key-desc": "Opcional. Dejar en blanco para leer la clave desde config.xml",
+        "config-path": "Ruta de configuración",
+        "config-path-desc": "Ruta opcional al config.xml de Syncthing para detección automática",
+        "verify-tls": "Verificar certificados TLS",
+        "verify-tls-desc": "Active esto solo si su certificado HTTPS de Syncthing es de confianza",
+        "poll-interval": "Intervalo de consulta",
+        "poll-interval-desc": "Con qué frecuencia el plugin actualiza el estado de Syncthing",
+        "folders": "Carpetas monitoreadas",
+        "folders-desc": "Si no se selecciona ninguna, el plugin monitorea todas las carpetas configuradas",
+        "no-folders": "Aún no se cargaron carpetas. Guarde y actualice cuando Syncthing esté accesible.",
+        "save": "Guardar",
+        "saved": "Guardado",
+        "refresh": "Actualizar ahora",
+        "status": "Estado actual",
+        "about": "Acerca de",
+        "developer": "Desarrollado por Pir0c0pter0"
+    },
+    "source": {
+        "manual": "Manual",
+        "config": "Config.xml",
+        "none": "No disponible"
+    }
+}
