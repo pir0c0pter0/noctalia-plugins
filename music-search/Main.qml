@@ -1319,7 +1319,7 @@ Item {
                                                                entry.url || "",
                                                                entry.uploader || "",
                                                                String(entry.duration || 0),
-                                                               String(root.entrySavedState(entry))
+                                                               root.entrySavedState(entry)
                                                              ])
                              });
       return;
@@ -1751,13 +1751,13 @@ Item {
     root.queueBusy = true;
     root.queueCommandAction = "enqueue";
     queueProcess.exec({
-                        "command": buildQueueCommand("enqueue", [
+                         "command": buildQueueCommand("enqueue", [
                                                        entry.id || "",
                                                        entry.title || entry.name || root.untitledLabel,
                                                        entry.url || "",
                                                        entry.uploader || "",
                                                        String(entry.duration || 0),
-                                                       String(root.entrySavedState(entry))
+                                                       root.entrySavedState(entry)
                                                      ])
                       });
   }

@@ -354,11 +354,11 @@ Item {
   function formatSpeed(speed) {
     var value = speed || 1;
     if (!isFinite(value)) {
-      return pluginApi?.tr("speed.multiplier", {"speed": "1"});
+      return pluginApi?.tr("speed.multiplier", {"speed": "1.00"});
     }
 
     var rounded = Math.round(value * 100) / 100;
-    return pluginApi?.tr("speed.multiplier", {"speed": rounded.toFixed(2).replace(/\.?0+$/, "")});
+    return pluginApi?.tr("speed.multiplier", {"speed": rounded.toFixed(2)});
   }
 
   function effectiveSeekPosition() {
@@ -893,7 +893,7 @@ Item {
                 radius: Style.radiusM
                 color: Color.mPrimary
                 implicitHeight: Math.round(24 * Style.uiScaleRatio)
-                implicitWidth: speedChipLabel.implicitWidth + Math.round(18 * Style.uiScaleRatio)
+                implicitWidth: Math.max(speedChipLabel.implicitWidth, speedChipWidthReference.implicitWidth) + Math.round(18 * Style.uiScaleRatio)
                 opacity: mainInstance?.speedBusy === true ? 0.75 : 1
 
                 NText {
@@ -904,11 +904,27 @@ Item {
                   color: Color.mOnPrimary
                 }
 
+                NText {
+                  id: speedChipWidthReference
+                  visible: false
+                  text: root.formatSpeed(4)
+                  pointSize: Style.fontSizeS
+                }
+
                 MouseArea {
                   anchors.fill: parent
+                  acceptedButtons: Qt.LeftButton
                   enabled: mainInstance?.isPlaying === true && mainInstance?.speedBusy !== true
                   cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
                   onClicked: mainInstance?.setSpeed(1)
+                  onWheel: wheel => {
+                             if (!enabled || wheel.angleDelta.y === 0) {
+                               return;
+                             }
+
+                             mainInstance?.adjustSpeed(wheel.angleDelta.y > 0 ? 0.05 : -0.05);
+                             wheel.accepted = true;
+                           }
                 }
               }
 
@@ -985,14 +1001,14 @@ Item {
             }
           }
 
-          StackLayout {
+          NTabView {
+            id: tabView
             Layout.fillWidth: true
             Layout.fillHeight: true
             currentIndex: tabBar.currentIndex
 
             Item {
-              Layout.fillWidth: true
-              Layout.fillHeight: true
+              height: tabView.height
 
               ColumnLayout {
                 anchors.fill: parent
@@ -1213,8 +1229,7 @@ Item {
             }
 
             Item {
-              Layout.fillWidth: true
-              Layout.fillHeight: true
+              height: tabView.height
 
               ColumnLayout {
                 anchors.fill: parent
@@ -1294,8 +1309,7 @@ Item {
             }
 
             Item {
-              Layout.fillWidth: true
-              Layout.fillHeight: true
+              height: tabView.height
 
               ColumnLayout {
                 anchors.fill: parent
@@ -1357,19 +1371,21 @@ Item {
                     wrapMode: Text.Wrap
                   }
 
-                  ListView {
+                  NListView {
                     id: queueList
                     anchors.fill: parent
                     visible: (mainInstance?.queueEntries || []).length > 0
-                    clip: true
                     spacing: Style.marginM
-                    reuseItems: true
                     cacheBuffer: Math.round(800 * Style.uiScaleRatio)
                     boundsBehavior: Flickable.StopAtBounds
                     model: mainInstance?.queueEntries || []
+                    verticalPolicy: ScrollBar.AsNeeded
+                    horizontalPolicy: ScrollBar.AlwaysOff
+                    reserveScrollbarSpace: false
+                    gradientColor: Color.mSurfaceVariant
 
                     delegate: Item {
-                      width: queueList.width
+                      width: queueList.availableWidth
                       implicitHeight: queueCard.implicitHeight
 
                       TrackCard {
@@ -1379,15 +1395,6 @@ Item {
                         entry: modelData
                         section: "queue"
                       }
-                    }
-
-                    footer: Item {
-                      width: queueList.width
-                      height: Style.marginS
-                    }
-
-                    ScrollBar.vertical: ScrollBar {
-                      policy: ScrollBar.AsNeeded
                     }
                   }
                 }
