@@ -37,22 +37,22 @@ PanelWindow {
   property var cfg: pluginApi?.pluginSettings || ({})
   property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
-  property int animationDuration: cfg.animation_duration || defaults.animation_duration
-  property color backgroundColor: cfg.background_color || defaults.background_color
-  property real backgroundOpacity: cfg.background_opacity || defaults.background_opacity
+  property int animationDuration: cfg.animation_duration ?? defaults.animation_duration
+  property color backgroundColor: cfg.background_color ?? defaults.background_color
+  property real backgroundOpacity: cfg.background_opacity ?? defaults.background_opacity
   property string cacheDir: Settings.cacheDir + "/thumbnails/"
-  property int contentHeight2: cfg.card_height || defaults.card_height
-  property int cardSpacing: cfg.card_spacing || defaults.card_spacing
-  property int cardStripWidth: cfg.card_strip_width || defaults.card_strip_width
-  property int cardRadius: cfg.card_radius || defaults.card_radius
-  property int cardsShown: cfg.cards_shown || defaults.cards_shown
-  property var filterImages: cfg.filter_images || defaults.filter_images
-  property var filterVideos: cfg.filter_videos || defaults.filter_videos
-  property bool livePreview: cfg.live_preview || defaults.live_preview
-  property string selectedFilter: cfg.selected_filter || defaults.selected_filter
-  property var shearFactor: cfg.shear_factor || defaults.shear_factor
-  property var topBarHeight: cfg.top_bar_height || defaults.top_bar_height
-  property var topBarRadius: cfg.top_bar_radius || defaults.top_bar_radius
+  property int contentHeight2: cfg.card_height ?? defaults.card_height
+  property int cardSpacing: cfg.card_spacing ?? defaults.card_spacing
+  property int cardStripWidth: cfg.card_strip_width ?? defaults.card_strip_width
+  property int cardRadius: cfg.card_radius ?? defaults.card_radius
+  property int cardsShown: cfg.cards_shown ?? defaults.cards_shown
+  property var filterImages: cfg.filter_images ?? defaults.filter_images
+  property var filterVideos: cfg.filter_videos ?? defaults.filter_videos
+  property bool livePreview: cfg.live_preview ?? defaults.live_preview
+  property string selectedFilter: cfg.selected_filter ?? defaults.selected_filter
+  property var shearFactor: cfg.shear_factor ?? defaults.shear_factor
+  property var topBarHeight: cfg.top_bar_height ?? defaults.top_bar_height
+  property var topBarRadius: cfg.top_bar_radius ?? defaults.top_bar_radius
   property string wallpaperDir: Settings.data.wallpaper.directory
 
   property string loadingMessage
