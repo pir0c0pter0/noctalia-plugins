@@ -30,8 +30,8 @@ jobs:
           diff_changes=$(git diff origin/main...HEAD |
             awk '/^diff --git.*\.qml /{found=1} /^diff --git/{if(!/\.qml /) found=0} found{print}' |
             grep -v "^(index|\+\+\+|-)") || (
-            echo "Failed to get the diff changes from $PR_NUMBER"
-            exit 1
+            echo "Failed to get the diff changes from $PR_NUMBER, most probably no diff with qml files found!"
+            exit 0
           )
 
           if [ -z "$diff_changes" ] || [ "$diff_changes" = "" ]; then
