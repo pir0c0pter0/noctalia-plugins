@@ -15,6 +15,8 @@
     "new": "New Note",
     "empty": "No notes yet",
     "create-first": "Click + to create your first note",
+    "hint-unselect": "ESC to UnSelect",
+    "hint-click-select": "Click to Select",
     "delete-confirm": "Delete this note?",
     "cancel": "Cancel",
     "close": "Close",
@@ -29,7 +31,8 @@
     "save": "Save",
     "delete": "Delete",
     "placeholder": "Start writing in Markdown...",
-    "hint": "Ctrl+S to save"
+    "hint": "Ctrl+S to save",
+    "hint-esc-save": "ESC to Save"
   },
   "settings": {
     "saved": "Sticky Notes settings saved",

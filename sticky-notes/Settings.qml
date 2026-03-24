@@ -79,7 +79,6 @@ ColumnLayout {
 
   function saveSettings() {
     if (!pluginApi) {
-      Logger.e("StickyNotes", "Cannot save settings: pluginApi is null");
       return;
     }
 
@@ -87,7 +86,6 @@ ColumnLayout {
     pluginApi.pluginSettings.githubToken = root.valueGithubToken.trim();
     pluginApi.saveSettings();
 
-    Logger.i("StickyNotes", "Settings saved");
     ToastService.showNotice(pluginApi?.tr("settings.saved"));
   }
 }

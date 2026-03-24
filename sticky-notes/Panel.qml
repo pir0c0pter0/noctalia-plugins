@@ -30,19 +30,32 @@ Item {
   anchors.fill: parent
   focus: true
 
+  Component.onCompleted: loadNotes()
+
   Keys.onPressed: (event) => {
     if (event.key === Qt.Key_Escape && noteList.hasActiveEditor) {
       noteList.saveActiveEditor();
+      event.accepted = true;
+    } else if (event.key === Qt.Key_Escape && noteList.hasSelectedNote) {
+      noteList.clearSelection();
+      event.accepted = true;
+    }
+  }
+
+  Keys.onShortcutOverride: (event) => {
+    if (event.key !== Qt.Key_Escape) return;
+
+    if (noteList.hasActiveEditor) {
+      noteList.saveActiveEditor();
+      event.accepted = true;
+    } else if (noteList.hasSelectedNote) {
+      noteList.clearSelection();
       event.accepted = true;
     }
   }
 
   // ── Notes Model (ListModel for proper Repeater updates) ──
   ListModel { id: notesModel }
-
-  Component.onCompleted: {
-    loadNotes();
-  }
 
   onVisibleChanged: {
     if (visible) loadNotes();

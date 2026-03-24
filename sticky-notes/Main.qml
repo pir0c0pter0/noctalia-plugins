@@ -55,7 +55,6 @@ Item {
       var parsed = JSON.parse(stored);
       return Array.isArray(parsed) ? parsed : [];
     } catch (e) {
-      Logger.e("StickyNotes", "Failed to parse notes for sync: " + e);
       return [];
     }
   }
@@ -84,19 +83,32 @@ Item {
 
     var finalColor = saveColor;
     var foundIndex = -1;
+    var existingNote = null;
     for (var i = 0; i < notes.length; i++) {
       if (notes[i].noteId === noteId) {
         finalColor = notes[i].color || finalColor;
         foundIndex = i;
+        existingNote = notes[i];
         break;
+      }
+    }
+
+    var normalizedContent = content || "";
+    var resolvedColor = finalColor || Storage.pickRandomColor();
+
+    if (existingNote) {
+      var existingContent = existingNote.content || "";
+      var existingColor = existingNote.color || "";
+      if (existingContent === normalizedContent && existingColor === resolvedColor) {
+        return existingNote;
       }
     }
 
     var note = {
       noteId: noteId,
-      content: content,
+      content: normalizedContent,
       modified: now,
-      color: finalColor || Storage.pickRandomColor()
+      color: resolvedColor
     };
 
     if (foundIndex >= 0) {
@@ -106,8 +118,6 @@ Item {
     }
 
     persistNotes(notes);
-
-    Logger.i("StickyNotes", "Note saved: " + noteId);
     return note;
   }
 
@@ -125,8 +135,6 @@ Item {
     if (expandedNoteId === noteId) {
       closeExpandedNote();
     }
-
-    Logger.i("StickyNotes", "Note deleted: " + noteId);
   }
 
   function openExpandedNote(screen, noteId, content, noteColor) {
@@ -155,7 +163,6 @@ Item {
     }
 
     if (syncInProgress) {
-      Logger.w("StickyNotes", "Sync skipped because another sync is already running");
       return;
     }
 
@@ -170,7 +177,6 @@ Item {
       lastSyncAt = Date.now();
 
       if (silent === true) {
-        Logger.w("StickyNotes", "Auto sync skipped because GitHub token is empty");
         return;
       }
     }
@@ -190,12 +196,10 @@ Item {
       lastSyncAt = Date.now();
 
       if (success) {
-        Logger.i("StickyNotes", lastSyncMessage);
         if (silent !== true) {
           ToastService.showNotice(lastSyncMessage);
         }
       } else {
-        Logger.e("StickyNotes", lastSyncMessage);
         ToastService.showError(lastSyncMessage);
       }
     });

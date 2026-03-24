@@ -21,17 +21,40 @@ Rectangle {
   property int editingIndex: -1
   property string editingContent: ""
   property var pluginApi: null
+  property bool isSelected: false
 
   // Computed
   property bool isEditing: editingIndex === index
   property bool confirmingDelete: false
   property string renderedContent: ""
+  property bool showDisplayScrollbar: false
+  property bool showEditScrollbar: false
   readonly property real footerHeight: 28 * Style.uiScaleRatio
   readonly property real footerActionWidth: (28 * 4 + 2 * 3) * Style.uiScaleRatio
+  readonly property real minEditHeight: 200 * Style.uiScaleRatio
+  readonly property real previewHeight: Math.min(
+    Math.max(
+      100 * Style.uiScaleRatio,
+      noteContent.contentHeight + noteCard.footerHeight + (Style.marginM * 2) + Style.marginXS
+    ),
+    300 * Style.uiScaleRatio
+  )
 
   onContentChanged: updateRendered()
   onNoteColorChanged: updateRendered()
-  Component.onCompleted: updateRendered()
+  Component.onCompleted: {
+    updateRendered();
+    updateDisplayScrollInteractivity();
+    updateEditScrollInteractivity();
+  }
+  onHeightChanged: {
+    updateDisplayScrollInteractivity();
+    updateEditScrollInteractivity();
+  }
+  onIsSelectedChanged: {
+    updateDisplayScrollInteractivity();
+    updateEditScrollInteractivity();
+  }
 
   function updateRendered() {
     renderedContent = Markdown.render(noteCard.content || "", { noteColor: noteCard.noteColor || "#FFF9C4" });
@@ -43,29 +66,45 @@ Rectangle {
   signal deleteClicked()
   signal cancelClicked()
   signal expandClicked()
+  signal selectRequested()
+  signal clearSelectionRequested()
+  signal requestListScroll(real deltaY)
 
   HoverHandler { id: cardHover }
 
   width: parent ? parent.width : 200
   height: isEditing
-    ? 200 * Style.uiScaleRatio
-    : Math.min(
-        Math.max(
-          100 * Style.uiScaleRatio,
-          noteContent.contentHeight + noteCard.footerHeight + (Style.marginM * 2) + Style.marginXS
-        ),
-        300 * Style.uiScaleRatio
-      )
+    ? Math.max(noteCard.minEditHeight, noteCard.previewHeight)
+    : noteCard.previewHeight
   color: noteCard.noteColor || "#FFF9C4"
   radius: Style.radiusM
   border.color: isEditing
     ? (editTextArea.activeFocus ? Qt.darker(Color.mPrimary, 1.35) : Color.mPrimary)
-    : Qt.darker(noteCard.noteColor || "#FFF9C4", 1.06)
-  border.width: isEditing ? Style.borderM : Style.borderS
+    : (isSelected ? Color.mPrimary : Qt.darker(noteCard.noteColor || "#FFF9C4", 1.06))
+  border.width: isEditing
+    ? Style.borderM
+    : (isSelected ? (Style.borderM + Style.borderS) : Style.borderS)
 
   Behavior on border.color { ColorAnimation { duration: 150 } }
   Behavior on border.width { NumberAnimation { duration: 150 } }
   Behavior on height { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+
+  Shortcut {
+    sequence: "Escape"
+    enabled: noteCard.isSelected && !noteCard.isEditing
+    context: Qt.WindowShortcut
+    onActivated: noteCard.clearSelectionRequested()
+  }
+
+  Rectangle {
+    anchors.fill: parent
+    color: Qt.rgba(0, 0, 0, 0)
+    radius: noteCard.radius
+    border.color: Color.mPrimary
+    border.width: (!noteCard.isEditing && noteCard.isSelected) ? Style.borderS : 0
+    visible: !noteCard.isEditing && noteCard.isSelected
+    z: 180
+  }
 
   // Shadow
   Rectangle {
@@ -85,35 +124,66 @@ Rectangle {
     spacing: Style.marginXS
     visible: !noteCard.isEditing && !noteCard.confirmingDelete
 
-    Flickable {
-      id: noteFlickable
+    NScrollView {
+      id: noteScrollView
       Layout.fillWidth: true
       Layout.fillHeight: true
-      clip: true
-      contentWidth: width
-      contentHeight: Math.ceil(noteContent.contentHeight) + 1
-      boundsBehavior: Flickable.StopAtBounds
-      flickableDirection: Flickable.VerticalFlick
-      interactive: contentHeight > height
+      // Keep wheel routing controlled by noteCard.WheelHandler so we can
+      // preserve "selected-note first, then list" behavior.
+      wheelScrollMultiplier: 1.0
+      reserveScrollbarSpace: false
+      ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+      ScrollBar.vertical.policy: noteCard.showDisplayScrollbar ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff
+      gradientColor: noteCard.noteColor || "#FFF9C4"
 
-      ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+      Item {
+        id: noteScrollContent
+        width: noteContentCol.width
+        implicitHeight: Math.ceil(noteContent.contentHeight) + 1
 
-      TextEdit {
-        id: noteContent
-        width: parent.width
-        height: contentHeight
-        text: noteCard.renderedContent
-        textFormat: TextEdit.RichText
-        font.pointSize: Style.fontSizeS * Style.uiScaleRatio
-        color: "#37474F"
-        wrapMode: TextEdit.Wrap
-        readOnly: true
-        selectByMouse: true
-        activeFocusOnTab: false
-        visible: (noteCard.content || "").length > 0
+        TextEdit {
+          id: noteContent
+          width: parent.width
+          height: contentHeight
+          text: noteCard.renderedContent
+          textFormat: TextEdit.RichText
+          font.pointSize: Style.fontSizeS * Style.uiScaleRatio
+          color: "#37474F"
+          wrapMode: TextEdit.Wrap
+          readOnly: true
+          selectByMouse: true
+          activeFocusOnTab: false
+          visible: (noteCard.content || "").length > 0
 
-        onLinkActivated: (link) => Qt.openUrlExternally(link)
+          onLinkActivated: (link) => Qt.openUrlExternally(link)
+          onContentHeightChanged: {
+            noteCard.updateDisplayScrollInteractivity();
+            noteCard.updateEditScrollInteractivity();
+          }
+
+          Keys.onShortcutOverride: (event) => {
+            if (event.key !== Qt.Key_Escape || !noteCard.isSelected || noteCard.isEditing) return;
+            noteCard.clearSelectionRequested();
+            event.accepted = true;
+          }
+        }
+
+        // Ensure clicking content area also selects this card.
+        MouseArea {
+          anchors.fill: parent
+          acceptedButtons: Qt.LeftButton
+          propagateComposedEvents: true
+          onPressed: (mouse) => {
+            noteCard.selectRequested();
+            mouse.accepted = false;
+          }
+          onWheel: (wheel) => noteCard.handleWheelRouting(wheel)
+        }
       }
+    }
+
+    WheelHandler {
+      onWheel: (wheel) => noteCard.handleWheelRouting(wheel)
     }
 
     RowLayout {
@@ -124,6 +194,16 @@ Rectangle {
       Layout.maximumHeight: noteCard.footerHeight
       Layout.rightMargin: Style.marginXS
       spacing: Style.marginXS
+
+      NText {
+        Layout.alignment: Qt.AlignVCenter
+        text: noteCard.isSelected
+          ? noteCard.pluginApi?.tr("notes.hint-unselect")
+          : noteCard.pluginApi?.tr("notes.hint-click-select")
+        visible: noteCard.isSelected || (!noteCard.isSelected && cardHover.hovered)
+        font.pointSize: (Style.fontSizeXS - 1) * Style.uiScaleRatio
+        color: Qt.rgba(0, 0, 0, 0.35)
+      }
 
       Item { Layout.fillWidth: true }
 
@@ -302,28 +382,26 @@ Rectangle {
       anchors.margins: Style.marginM
       spacing: 2
 
-      Flickable {
-        id: editFlickable
+      NScrollView {
+        id: editScrollView
         Layout.fillWidth: true
         Layout.fillHeight: true
-        clip: true
-        contentWidth: width
-        contentHeight: Math.max(editFlickable.height, Math.ceil(editTextArea.contentHeight) + 1)
-        boundsBehavior: Flickable.StopAtBounds
-        flickableDirection: Flickable.VerticalFlick
-
-        ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+        reserveScrollbarSpace: false
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: noteCard.showEditScrollbar ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff
+        gradientColor: noteCard.noteColor || "#FFF9C4"
 
         TextEdit {
           id: editTextArea
-          width: editFlickable.width
-          height: editFlickable.contentHeight
+          width: editScrollView.width
+          height: Math.ceil(editTextArea.contentHeight) + 1
           color: "#3E2723"
           font.pointSize: Style.fontSizeS * Style.uiScaleRatio
           wrapMode: TextEdit.Wrap
           selectByMouse: true
           selectByKeyboard: true
           persistentSelection: true
+          onContentHeightChanged: noteCard.updateEditScrollInteractivity()
 
           Shortcut {
             sequences: [StandardKey.Copy]
@@ -369,11 +447,7 @@ Rectangle {
           }
 
           Keys.onPressed: (event) => {
-            if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) &&
-                       (event.modifiers & Qt.ControlModifier)) {
-              noteCard.saveClicked(editTextArea.text, noteCard.noteColor);
-              event.accepted = true;
-            } else if (event.key === Qt.Key_S && (event.modifiers & Qt.ControlModifier)) {
+            if (event.key === Qt.Key_S && (event.modifiers & Qt.ControlModifier)) {
               noteCard.saveClicked(editTextArea.text, noteCard.noteColor);
               event.accepted = true;
             }
@@ -385,17 +459,15 @@ Rectangle {
         Layout.fillWidth: true
         spacing: Style.marginXS
 
-        Item {
-          Layout.fillWidth: true
-        }
-
         // Shortcut hint (#13)
         NText {
           Layout.alignment: Qt.AlignVCenter
-          text: noteCard.pluginApi?.tr("editor.hint")
+          text: noteCard.pluginApi?.tr("editor.hint-esc-save")
           font.pointSize: (Style.fontSizeXS - 1) * Style.uiScaleRatio
           color: Qt.rgba(0, 0, 0, 0.3)
         }
+
+        Item { Layout.fillWidth: true }
 
         NIconButton {
           Layout.alignment: Qt.AlignVCenter
@@ -423,13 +495,8 @@ Rectangle {
       editTextArea.cursorPosition = editTextArea.text.length;
     }
     confirmingDelete = false;
-  }
-
-  // Background double-click to edit
-  MouseArea {
-    anchors.fill: parent
-    z: -1
-    onDoubleClicked: noteCard.editClicked()
+    updateDisplayScrollInteractivity();
+    updateEditScrollInteractivity();
   }
 
   function getEditedText() {
@@ -438,5 +505,120 @@ Rectangle {
 
   function saveCurrent() {
     noteCard.saveClicked(editTextArea.text, noteCard.noteColor);
+  }
+
+  function scrollDisplayByDelta(deltaY) {
+    var target = getDisplayScrollTarget();
+    if (!target) return deltaY;
+
+    var maxY = Math.max(0, target.contentHeight - target.height);
+    if (maxY <= 0) return deltaY;
+
+    var currentY = target.contentY;
+    var targetY = currentY - deltaY;
+    var clampedY = Math.max(0, Math.min(maxY, targetY));
+    target.contentY = clampedY;
+
+    var consumed = currentY - clampedY;
+    return deltaY - consumed;
+  }
+
+  function getDisplayScrollTarget() {
+    return getScrollTarget(noteScrollView);
+  }
+
+  function getEditScrollTarget() {
+    return getScrollTarget(editScrollView);
+  }
+
+  function getScrollTarget(scrollView) {
+    if (!scrollView) return null;
+    if (scrollView._internalFlickable &&
+        scrollView._internalFlickable.contentY !== undefined &&
+        scrollView._internalFlickable.contentHeight !== undefined) {
+      return scrollView._internalFlickable;
+    }
+    if (scrollView.contentItem &&
+        scrollView.contentItem.contentY !== undefined &&
+        scrollView.contentItem.contentHeight !== undefined) {
+      return scrollView.contentItem;
+    }
+    if (scrollView.flickableItem &&
+        scrollView.flickableItem.contentY !== undefined &&
+        scrollView.flickableItem.contentHeight !== undefined) {
+      return scrollView.flickableItem;
+    }
+    return null;
+  }
+
+  function hasOverflow(target) {
+    if (!target) return false;
+    return target.contentHeight > target.height + 1;
+  }
+
+  function updateDisplayScrollInteractivity() {
+    var target = getDisplayScrollTarget();
+    var overflow = hasOverflow(target);
+    noteCard.showDisplayScrollbar = overflow && (noteCard.isSelected || noteCard.isEditing);
+    if (!target || target.interactive === undefined) return;
+    target.interactive = noteCard.isSelected && overflow;
+  }
+
+  function updateEditScrollInteractivity() {
+    var target = getEditScrollTarget();
+    var overflow = hasOverflow(target);
+    noteCard.showEditScrollbar = overflow && (noteCard.isSelected || noteCard.isEditing);
+    if (!target || target.interactive === undefined) return;
+    target.interactive = noteCard.isEditing && overflow;
+  }
+
+  function handleWheelRouting(wheel) {
+    if (noteCard.isEditing || noteCard.confirmingDelete) {
+      wheel.accepted = false;
+      return;
+    }
+
+    var delta = wheel.pixelDelta.y !== 0 ? wheel.pixelDelta.y : wheel.angleDelta.y;
+    if (delta === 0) {
+      wheel.accepted = false;
+      return;
+    }
+
+    if (!noteCard.isSelected) {
+      noteCard.requestListScroll(delta);
+      wheel.accepted = true;
+      return;
+    }
+
+    noteCard.scrollDisplayByDelta(delta);
+    wheel.accepted = true;
+  }
+
+  TapHandler {
+    acceptedButtons: Qt.LeftButton
+    onTapped: noteCard.selectRequested()
+  }
+
+  // Fallback wheel bridge for any uncovered layout gaps (e.g. ColumnLayout spacing
+  // between content and footer hint). It does not consume clicks.
+  MouseArea {
+    anchors.fill: parent
+    z: 210
+    visible: !noteCard.isEditing && !noteCard.confirmingDelete
+    acceptedButtons: Qt.LeftButton
+    hoverEnabled: false
+    propagateComposedEvents: true
+    onPressed: (mouse) => {
+      noteCard.selectRequested();
+      mouse.accepted = false;
+    }
+    onWheel: (wheel) => noteCard.handleWheelRouting(wheel)
+  }
+
+  // Catch wheel events across the full card surface (including layout margins
+  // and footer gaps) so list scrolling still works when no note is selected.
+  WheelHandler {
+    acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+    onWheel: (wheel) => noteCard.handleWheelRouting(wheel)
   }
 }

@@ -22,6 +22,18 @@ qs -c noctalia-shell ipc call plugin:sticky-notes toggle
 
 ---
 
+## 🖱️ Interaction Guide
+
+- **Scroll list (no note selected)**: Use mouse wheel anywhere
+- **Select a note**: click on a note card.
+- **Unselect a note**: press `Esc` when a note is selected.
+- **Scroll note content (selected note)**: While selected, mouse wheel scrolls inside that note's content area.
+- **Edit note**: Click the `pencil` icon or press `E` when a note is selected.
+  - In editor: `Esc` or `Ctrl+S` to save.
+- **Expand note window**: Click the `arrow` icon or press `F` when a note is selected.
+
+---
+
 ## ✍️ Supported Markdown Syntax
 
 - **Headers**: Standard `# h1` to `###### h6` as well as Setext style headers (`===` and `---` underlines).
