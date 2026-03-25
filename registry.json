@@ -1027,7 +1027,7 @@
     {
       "id": "sticky-notes",
       "name": "Sticky Notes",
-      "version": "0.0.2",
+      "version": "0.0.3",
       "official": false,
       "author": "sapjax",
       "description": "A local quick notes plugin with Markdown support.",
@@ -1039,7 +1039,7 @@
         "Panel",
         "Productivity"
       ],
-      "lastUpdated": "2026-03-20T11:04:00+08:00"
+      "lastUpdated": "2026-03-25T19:56:09+01:00"
     },
     {
       "id": "syncthing-status",
