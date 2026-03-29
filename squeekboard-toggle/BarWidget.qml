@@ -15,7 +15,7 @@ Item {
     property string section: ""
 
     readonly property var mainInstance: pluginApi?.mainInstance
-    property bool keyboardActive: mainInstance ? mainInstance.keyboardActive : false
+    property bool keyboardActive: mainInstance?.keyboardActive ?? false
 
     readonly property string barPosition: Settings.getBarPositionForScreen(screen ? screen.name : "")
     readonly property bool isVertical: barPosition === "left" || barPosition === "right"
