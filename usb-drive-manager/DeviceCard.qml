@@ -66,7 +66,7 @@ Rectangle {
             // Label + subtitle
             ColumnLayout {
                 Layout.fillWidth: true
-                spacing: 1
+                spacing: Style.marginXS
 
                 NText {
                     Layout.fillWidth: true
@@ -97,7 +97,7 @@ Rectangle {
                 NText {
                     id: statusLabel
                     anchors.centerIn: parent
-                    text: pluginApi?.tr("device.mounted") || "Mounted"
+                    text: pluginApi?.tr("device.mounted")
                     pointSize: Style.fontSizeXXS
                     color: Color.mOnPrimaryContainer
                     font.weight: Font.Medium
@@ -120,13 +120,13 @@ Rectangle {
         ColumnLayout {
             visible: (device?.isMounted ?? false) && (device?.usedPercent ?? 0) > 0
             Layout.fillWidth: true
-            spacing: 3
+            spacing: Style.marginXS
 
             // Bar
             Rectangle {
                 Layout.fillWidth: true
                 height: 4
-                radius: 2
+                radius: height / 2
                 color: Color.mOutlineVariant
 
                 Rectangle {
@@ -148,7 +148,7 @@ Rectangle {
                 Layout.fillWidth: true
 
                 NText {
-                    text: (device?.usedSize || "") + " " + (pluginApi?.tr("device.used") || "used")
+                    text: (device?.usedSize || "") + " " + pluginApi?.tr("device.used")
                     pointSize: Style.fontSizeXXS
                     color: Color.mOnSurfaceVariant
                 }
@@ -156,7 +156,7 @@ Rectangle {
                 Item { Layout.fillWidth: true }
 
                 NText {
-                    text: (device?.freeSize || "") + " " + (pluginApi?.tr("device.free") || "free")
+                    text: (device?.freeSize || "") + " " + pluginApi?.tr("device.free")
                     pointSize: Style.fontSizeXXS
                     color: Color.mOnSurfaceVariant
                 }
@@ -172,7 +172,7 @@ Rectangle {
             NButton {
                 visible: device?.isMounted ?? false
                 Layout.fillWidth: true
-                text: pluginApi?.tr("device.action-open") || "Open"
+                text: pluginApi?.tr("device.action-open")
                 icon: "folder-open"
                 onClicked: root.openRequested(device.mountpoint)
             }
@@ -181,9 +181,8 @@ Rectangle {
             NIconButton {
                 visible: device?.isMounted ?? false
                 icon: "copy"
-                tooltipText: pluginApi?.tr("device.action-copy-path") || "Copy path"
+                tooltipText: pluginApi?.tr("device.action-copy-path")
                 baseSize: 28
-                applyUiScale: false
                 colorBg: Color.mSurfaceVariant
                 colorFg: Color.mOnSurfaceVariant
                 colorBgHover: Color.mHover
@@ -197,7 +196,7 @@ Rectangle {
             NButton {
                 visible: !(device?.isMounted ?? false)
                 Layout.fillWidth: true
-                text: pluginApi?.tr("device.action-mount") || "Mount"
+                text: pluginApi?.tr("device.action-mount")
                 icon: "plug-connected"
                 onClicked: root.mountRequested(device.path, root.displayLabel)
             }
@@ -206,9 +205,8 @@ Rectangle {
             NIconButton {
                 visible: device?.isMounted ?? false
                 icon: "plug-connected-x"
-                tooltipText: pluginApi?.tr("device.action-unmount") || "Unmount"
+                tooltipText: pluginApi?.tr("device.action-unmount")
                 baseSize: 28
-                applyUiScale: false
                 colorBg: Color.mSurfaceVariant
                 colorFg: Color.mOnSurfaceVariant
                 colorBgHover: Color.mHover
@@ -221,9 +219,8 @@ Rectangle {
             // Eject (safe remove)
             NIconButton {
                 icon: "player-eject"
-                tooltipText: pluginApi?.tr("device.action-eject") || "Safely eject"
+                tooltipText: pluginApi?.tr("device.action-eject")
                 baseSize: 28
-                applyUiScale: false
                 colorBg: Color.mSurfaceVariant
                 colorFg: Color.mOnSurfaceVariant
                 colorBgHover: Color.mErrorContainer

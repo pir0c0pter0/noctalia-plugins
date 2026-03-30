@@ -25,7 +25,7 @@ Item {
     function copyToClipboard(text) {
         Quickshell.execDetached(["sh", "-c", "echo -n " + JSON.stringify(text) + " | wl-copy"])
         ToastService.showNotice(
-            pluginApi?.tr("notifications.path-copied") || "Path copied",
+            pluginApi?.tr("notifications.path-copied"),
             text
         )
     }
@@ -63,7 +63,7 @@ Item {
                         }
 
                         NText {
-                            text: pluginApi?.tr("panel.title") || "USB Manager"
+                            text: pluginApi?.tr("panel.title")
                             font.pointSize: Style.fontSizeL
                             font.weight: Font.Medium
                             color: Color.mOnSurface
@@ -75,7 +75,7 @@ Item {
                         NIconButton {
                             icon: "refresh"
                             baseSize: Style.baseWidgetSize * 0.8
-                            tooltipText: pluginApi?.tr("panel.refresh") || "Refresh"
+                            tooltipText: pluginApi?.tr("panel.refresh")
                             onClicked: mainInstance?.refreshDevices()
 
                             RotationAnimation on rotation {
@@ -113,14 +113,14 @@ Item {
 
                                 NText {
                                     Layout.alignment: Qt.AlignHCenter
-                                    text: pluginApi?.tr("panel.empty") || "No USB devices detected"
+                                    text: pluginApi?.tr("panel.empty")
                                     pointSize: Style.fontSizeM
                                     color: Color.mOnSurfaceVariant
                                 }
 
                                 NText {
                                     Layout.alignment: Qt.AlignHCenter
-                                    text: pluginApi?.tr("panel.empty-hint") || "Plug in a USB drive to get started"
+                                    text: pluginApi?.tr("panel.empty-hint")
                                     pointSize: Style.fontSizeS
                                     color: Color.mOnSurfaceVariant
                                     opacity: 0.7
@@ -172,7 +172,7 @@ Item {
 
                             NButton {
                                 Layout.fillWidth: true
-                                text: pluginApi?.tr("panel.unmount-all") || "Unmount All"
+                                text: pluginApi?.tr("panel.unmount-all")
                                 icon: "plug-connected-x"
                                 enabled: mountedCount > 0
                                 onClicked: mainInstance?.unmountAll()
@@ -180,7 +180,7 @@ Item {
 
                             NButton {
                                 Layout.fillWidth: true
-                                text: pluginApi?.tr("panel.eject-all") || "Eject All"
+                                text: pluginApi?.tr("panel.eject-all")
                                 icon: "player-eject"
                                 enabled: devices.length > 0
                                 onClicked: mainInstance?.ejectAll()

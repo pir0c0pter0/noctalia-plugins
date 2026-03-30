@@ -151,14 +151,14 @@ Item {
             if (exitCode === 0) {
                 if (root.showNotifications) {
                     ToastService.showNotice(
-                        pluginApi?.tr("notifications.mounted") || "Mounted",
+                        pluginApi?.tr("notifications.mounted"),
                         mountProc.deviceLabel || mountProc.devicePath
                     )
                 }
             } else {
                 const errMsg = String(stderr.text).trim()
                 ToastService.showError(
-                    pluginApi?.tr("notifications.mount-failed") || "Mount failed",
+                    pluginApi?.tr("notifications.mount-failed"),
                     errMsg || mountProc.devicePath
                 )
             }
@@ -178,14 +178,14 @@ Item {
             if (exitCode === 0) {
                 if (root.showNotifications) {
                     ToastService.showNotice(
-                        pluginApi?.tr("notifications.unmounted") || "Unmounted",
+                        pluginApi?.tr("notifications.unmounted"),
                         unmountProc.deviceLabel || unmountProc.devicePath
                     )
                 }
             } else {
                 const errMsg = String(stderr.text).trim()
                 ToastService.showError(
-                    pluginApi?.tr("notifications.unmount-failed") || "Unmount failed",
+                    pluginApi?.tr("notifications.unmount-failed"),
                     errMsg || unmountProc.devicePath
                 )
             }
@@ -205,14 +205,14 @@ Item {
             if (exitCode === 0) {
                 if (root.showNotifications) {
                     ToastService.showNotice(
-                        pluginApi?.tr("notifications.ejected") || "Safely ejected",
+                        pluginApi?.tr("notifications.ejected"),
                         ejectProc.deviceLabel || ejectProc.devicePath
                     )
                 }
             } else {
                 const errMsg = String(stderr.text).trim()
                 ToastService.showError(
-                    pluginApi?.tr("notifications.eject-failed") || "Eject failed",
+                    pluginApi?.tr("notifications.eject-failed"),
                     errMsg || ejectProc.devicePath
                 )
             }
@@ -374,7 +374,7 @@ Item {
         }
         if (root.showNotifications) {
             ToastService.showNotice(
-                pluginApi?.tr("notifications.unmount-all") || "All devices unmounted"
+                pluginApi?.tr("notifications.unmount-all")
             )
         }
         refreshDebounce.restart()
@@ -395,7 +395,7 @@ Item {
         }
         if (root.showNotifications) {
             ToastService.showNotice(
-                pluginApi?.tr("notifications.eject-all") || "All devices ejected"
+                pluginApi?.tr("notifications.eject-all")
             )
         }
         refreshDebounce.restart()
@@ -412,8 +412,8 @@ Item {
 
     function buildTooltip() {
         if (mountedCount === 0) {
-            return pluginApi?.tr("bar.tooltip-empty") || "No USB devices"
+            return pluginApi?.tr("bar.tooltip-empty")
         }
-        return (pluginApi?.tr("bar.tooltip-count") || "%1 device(s) mounted").replace("%1", mountedCount)
+        return (pluginApi?.tr("bar.tooltip-count") ?? "").replace("%1", mountedCount)
     }
 }
