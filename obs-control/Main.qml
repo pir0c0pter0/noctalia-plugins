@@ -44,6 +44,8 @@ Item {
   readonly property bool showBarWhenRecording: settings.showBarWhenRecording ?? defaults.showBarWhenRecording ?? true
   readonly property bool showBarWhenReplay: settings.showBarWhenReplay ?? defaults.showBarWhenReplay ?? false
   readonly property bool showBarWhenStreaming: settings.showBarWhenStreaming ?? defaults.showBarWhenStreaming ?? true
+  // Stored under the legacy showBarWhenReady key for settings compatibility.
+  readonly property bool alwaysShowInBar: settings.showBarWhenReady ?? defaults.showBarWhenReady ?? true
   readonly property bool showControlCenterWhenRecording: settings.showControlCenterWhenRecording ?? defaults.showControlCenterWhenRecording ?? true
   readonly property bool showControlCenterWhenReplay: settings.showControlCenterWhenReplay ?? defaults.showControlCenterWhenReplay ?? true
   readonly property bool showControlCenterWhenStreaming: settings.showControlCenterWhenStreaming ?? defaults.showControlCenterWhenStreaming ?? true
@@ -91,6 +93,7 @@ Item {
     showBarWhenRecording: showBarWhenRecording,
     showBarWhenReplay: showBarWhenReplay,
     showBarWhenStreaming: showBarWhenStreaming,
+    alwaysShowInBar: alwaysShowInBar,
     showControlCenterWhenRecording: showControlCenterWhenRecording,
     showControlCenterWhenReplay: showControlCenterWhenReplay,
     showControlCenterWhenStreaming: showControlCenterWhenStreaming,
@@ -261,6 +264,11 @@ Item {
     websocketLoader.item.request(type, requestData ?? ({}), onSuccess, onFailure)
   }
 
+  function isReplayBufferUnavailable(message) {
+    return typeof message === "string"
+      && message.toLowerCase().includes("replay buffer is not available")
+  }
+
   function fetchObsStatus(onSuccess, onFailure) {
     const status = {
       recording: false,
@@ -300,7 +308,15 @@ Item {
     requestObs("GetReplayBufferStatus", {}, function(response) {
       status.replayBuffer = response?.outputActive ?? false
       complete()
-    }, fail)
+    }, function(message) {
+      if (isReplayBufferUnavailable(message)) {
+        status.replayBuffer = false
+        complete()
+        return
+      }
+
+      fail(message)
+    })
 
     requestObs("GetStreamStatus", {}, function(response) {
       status.streaming = response?.outputActive ?? false
@@ -346,7 +362,15 @@ Item {
     requestObs("GetReplayBufferStatus", {}, function(response) {
       state.replayActive = response?.outputActive ?? false
       complete()
-    }, fail)
+    }, function(message) {
+      if (isReplayBufferUnavailable(message)) {
+        state.replayActive = false
+        complete()
+        return
+      }
+
+      fail(message)
+    })
 
     requestObs("GetStreamStatus", {}, function(response) {
       state.streamActive = response?.outputActive ?? false
@@ -445,6 +469,33 @@ Item {
     }
 
     pluginApi.togglePanel(screen, anchorItem)
+  }
+
+  function openSettings(screen, closePanelFirst) {
+    if (!screen || !pluginApi?.manifest) {
+      return
+    }
+
+    if (closePanelFirst) {
+      pluginApi.closePanel(screen)
+    }
+
+    Qt.callLater(function() {
+      BarService.openPluginSettings(screen, pluginApi.manifest)
+    })
+  }
+
+  function openSettingsForCurrentContext() {
+    const panelScreen = pluginApi?.panelOpenScreen
+
+    if (panelScreen) {
+      root.openSettings(panelScreen, true)
+      return
+    }
+
+    pluginApi.withCurrentScreen(function(screen) {
+      root.openSettings(screen, false)
+    })
   }
 
   function togglePanelFromIpc() {
@@ -841,6 +892,10 @@ Item {
 
     function togglePanel() {
       root.togglePanelFromIpc()
+    }
+
+    function openSettings() {
+      root.openSettingsForCurrentContext()
     }
 
     function refreshStatus() {

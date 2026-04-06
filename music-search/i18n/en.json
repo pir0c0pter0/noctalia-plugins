@@ -117,6 +117,8 @@
   },
   "queue": {
     "title": "Queue",
+    "nextUp": "Next up",
+    "queued": "Queued",
     "active": "Queue is active and waiting for the next finish.",
     "idle": "Queue is idle.",
     "start": "Start queue",
@@ -138,13 +140,29 @@
     "autoplaySavedShuffleDesc": "Shuffle the saved library into queue and start playing it.",
     "autoplaySavedShuffleActiveDesc": "Shuffle your saved music library into the active queue.",
     "empty": "Queue is empty",
-    "emptyDesc": "Use save, playlists, or inline queue actions to add tracks."
+    "emptyDesc": "Use save, playlists, or inline queue actions to add tracks.",
+    "removed": "Removed queued track.",
+    "cleared": "Queue cleared.",
+    "playingSaved": "Playing saved tracks.",
+    "playingShuffledSaved": "Playing shuffled saved tracks.",
+    "savedEmpty": "Saved library is empty.",
+    "loaded": "Queue loaded.",
+    "loadedEmpty": "Queue is empty.",
+    "armed": "Queue armed. It will start after the current song finishes.",
+    "stopped": "Queue stopped.",
+    "noNext": "No next queued track.",
+    "loadingSaved": "Loading saved tracks into queue...",
+    "loadingShuffledSaved": "Loading saved tracks into shuffled queue...",
+    "nowPlaying": "Queued playback: {title}",
+    "errorExhausted": "Queue ran out after a playback error.",
+    "finished": "Queue finished."
   },
   "speed": {
     "title": "Playback Speed",
     "setTo": "Set speed to {speed}",
     "desc": "Adjust current playback speed.",
     "current": "Current: {speed}",
+    "multiplier": "{speed}x",
     "noPlayback": "Start playback first, then use `speed:1.05` or the preview buttons.",
     "useNumber": "Use a number like `speed:1.05`."
   },
@@ -159,6 +177,7 @@
     "noTags": "No tags yet",
     "oneTag": "1 tag",
     "tagCount": "{count} tags",
+    "headerDescription": "{title} • {count}",
     "editor": "Tag editor",
     "chooseTrack": "Choose a saved track first, then use the tag action to edit its tags.",
     "add": "Add #{tag}",
@@ -176,6 +195,7 @@
     "edit": "Edit metadata",
     "chooseTrack": "Choose a library track first, then use the edit action to update title, artist, or album.",
     "fieldEditor": "{field} editor",
+    "headerDescription": "{title} • {value}",
     "currentlyEmpty": "currently empty",
     "editField": "Edit {field}",
     "empty": "Currently empty",
@@ -193,6 +213,7 @@
     "oneTrack": "1 track",
     "trackCount": "{count} tracks",
     "syncedFolder": "synced folder",
+    "syncedFolderDescription": "{count} • {source}",
     "rename": "Rename playlist",
     "renameTitle": "Playlist rename",
     "typeNewName": "Type a new name for \"{name}\".",
@@ -215,13 +236,89 @@
     "stopDesc": "Stop background playback.",
     "alreadyStopped": "music-search is already stopped",
     "nothingPlaying": "Nothing is currently playing.",
+    "searchMprisTrack": "Search current MPRIS track",
+    "mprisTrackDesc": "Search \"{title}\" on {provider}.",
+    "mprisTrackDescWithPlayer": "Search \"{title}\" on {provider} from {player}.",
     "playUrl": "Play URL",
     "saveUrl": "Save URL to library",
     "saveUrlMp3": "Save URL as mp3",
     "downloadDesc": "Download to ~/Music/Noctalia"
   },
+  "bar_widget": {
+    "tooltipIdle": "Open music panel",
+    "tooltipPlaying": "Open music panel\nNow playing: {title}",
+    "settings": "Widget settings"
+  },
+  "panel": {
+    "title": "Music panel",
+    "subtitle": "Search, queue, and control playback without opening the launcher.",
+    "openLauncher": "Launcher",
+    "openSettings": "Settings",
+    "close": "Close",
+    "hidePreview": "Hide preview",
+    "showPreview": "Show preview",
+    "search": "Search",
+    "library": "Saved",
+    "queue": "Queue",
+    "tracks": "Tracks",
+    "playlists": "Playlists",
+    "artists": "Artists",
+    "tags": "Tags",
+    "searchPlaceholder": "Search music, paste a URL, or use yt:/sc:/local:",
+    "libraryPlaceholder": "Filter saved tracks",
+    "playlistsPlaceholder": "Filter playlists",
+    "artistsPlaceholder": "Filter artists",
+    "tagsPlaceholder": "Filter tags",
+    "searchHint": "Search {provider}, paste a URL, or switch to Saved and Queue tabs.",
+    "typeMore": "Type at least 2 characters to search {provider}.",
+    "searching": "Searching {provider}...",
+    "noSearchResults": "No results for \"{query}\".",
+    "playUrl": "Play URL",
+    "saveUrl": "Save URL",
+    "queueUrl": "Queue URL",
+    "playSaved": "Play saved",
+    "shuffleSaved": "Shuffle saved",
+    "startQueue": "Start queue",
+    "skipQueue": "Skip",
+    "clearQueue": "Clear",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "speed": "Speed",
+    "saveCurrent": "Save track",
+    "saveCurrentMp3": "Save mp3",
+    "refresh": "Refresh",
+    "nowPlaying": "Now playing",
+    "nothingPlaying": "Nothing playing right now.",
+    "savedCount": "{count} saved tracks",
+    "queueCount": "{count} queued tracks",
+    "recentTracks": "Recent saved tracks",
+    "previewTitle": "Preview",
+    "queued": "Queued",
+    "queuedAt": "Queued {time}",
+    "emptyLibrary": "No saved tracks yet.",
+    "emptyQueue": "Queue is empty.",
+    "savedLabel": "Saved",
+    "playAction": "Play",
+    "queueAction": "Queue",
+    "saveAction": "Save",
+    "openAction": "Open",
+    "backAction": "Back",
+    "shuffleAction": "Shuffle",
+    "downloadAction": "MP3",
+    "removeAction": "Remove",
+    "playlistCount": "{count} playlists",
+    "artistCount": "{count} artists",
+    "tagCount": "{count} tags",
+    "helperHint": "The full command surface is still available in the launcher via >music-search.",
+    "emptyPlaylists": "No playlists matched this filter yet.",
+    "emptyArtists": "No saved artists matched this filter yet.",
+    "emptyTags": "No saved tags matched this filter yet.",
+    "emptyScopedLibrary": "No tracks are available in this section yet."
+  },
   "tooltip": {
     "addToQueue": "Add to queue",
+    "playNow": "Play now",
     "saveToLibrary": "Save to library",
     "saveMp3Current": "Save current track as mp3",
     "resume": "Resume",
@@ -243,7 +340,9 @@
     "renamePlaylist": "Rename playlist",
     "deletePlaylist": "Delete playlist",
     "syncFolder": "Sync folder playlist",
-    "removeFromPlaylist": "Remove from playlist"
+    "removeFromPlaylist": "Remove from playlist",
+    "removeFromQueue": "Remove from queue",
+    "unrated": "unrated"
   },
   "artists": {
     "noArtists": "Save tracks with uploader metadata to browse artists here.",
@@ -265,7 +364,10 @@
     "loadingMetadata": "Loading richer metadata...",
     "metadataParseError": "Metadata preview could not be parsed.",
     "metadataUnavailable": "Metadata preview unavailable.",
-    "viewCount": "{count} views"
+    "viewCount": "{count} views",
+    "viewCountB": "{count}B views",
+    "viewCountM": "{count}M views",
+    "viewCountK": "{count}K views"
   },
   "settings": {
     "provider": {
@@ -299,6 +401,13 @@
       "label": "Save remote tracks as mp3 after playback starts",
       "desc": "After a YouTube or SoundCloud track successfully starts playing, also save an mp3 copy into the current download folder."
     },
+    "bar": {
+      "title": "Bar Widget",
+      "hoverTitle": {
+        "label": "Show track title on hover",
+        "desc": "Expand the bar widget on hover to show and scroll the current track title."
+      }
+    },
     "home": {
       "title": "Home",
       "recent": {
@@ -320,6 +429,68 @@
       "playlists": {
         "label": "Show Playlists",
         "desc": "Show playlist shortcuts on the launcher home."
+      }
+    },
+    "panel": {
+      "title": "Panel",
+      "defaultTab": {
+        "label": "Default panel tab",
+        "desc": "Choose which top-level tab opens first when you open the panel."
+      },
+      "defaultLibrarySection": {
+        "label": "Default Saved section",
+        "desc": "Choose which secondary section opens first inside the Saved tab."
+      },
+      "density": {
+        "label": "Panel density",
+        "desc": "Adjust spacing and card sizing in the panel.",
+        "compact": "Compact",
+        "balanced": "Balanced",
+        "roomy": "Roomy"
+      },
+      "header": {
+        "label": "Show panel header",
+        "desc": "Show the title row with launcher, settings, and close actions at the top of the panel."
+      },
+      "nowPlaying": {
+        "label": "Show now-playing block",
+        "desc": "Show the playback controls and current track block at the top of the panel."
+      },
+      "playbackProgress": {
+        "label": "Show playback progress",
+        "desc": "Show the seek bar and time row in the now-playing block."
+      },
+      "providerChips": {
+        "label": "Show provider chips",
+        "desc": "Show the YouTube, SoundCloud, and Local provider shortcuts on the Search tab."
+      },
+      "recentTracks": {
+        "label": "Show recent saved tracks",
+        "desc": "Show recently saved tracks below the panel search helper when the Search tab is empty."
+      },
+      "searchHelper": {
+        "label": "Show search helper",
+        "desc": "Show the search hint and launcher tip when the Search tab is empty."
+      },
+      "preview": {
+        "label": "Show track preview",
+        "desc": "Show a preview pane alongside the panel tabs. Click a track card header to inspect it."
+      },
+      "urlActions": {
+        "label": "Show URL actions",
+        "desc": "Show Play URL, Save URL, and Queue URL buttons when the search field contains a URL."
+      },
+      "speedControls": {
+        "label": "Show speed controls",
+        "desc": "Show playback speed controls in the now-playing area."
+      },
+      "queueControls": {
+        "label": "Show queue controls",
+        "desc": "Show the Start, Skip, and Clear buttons at the top of the Queue tab."
+      },
+      "statusBanner": {
+        "label": "Show status banner",
+        "desc": "Show success and error notices between the playback block and the tab area."
       }
     },
     "preview": {

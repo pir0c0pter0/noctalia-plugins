@@ -1,4 +1,4 @@
-Screen Toolkit
+# Screen Toolkit
 
 Screen Toolkit is a Noctalia plugin that groups several screen utilities in one panel.
 
@@ -14,7 +14,7 @@ Tools included:
 - Screen Recorder
 - Webcam Mirror
 
-Features:
+## Features:
 
 Color Picker:
 Pick any pixel and get HEX, RGB, HSV, and HSL values. Includes copy buttons and color history.
@@ -47,44 +47,69 @@ Webcam Mirror:
 Floating webcam preview window. Can be moved, resized, and flipped horizontally.
 
 Requirements:
-grim, slurp, wl-clipboard, tesseract, imagemagick, zbar, curl, translate-shell, wf-recorder, ffmpeg
+grim, slurp, wl-clipboard, tesseract, imagemagick, zbar, curl, translate-shell, ffmpeg
+Screen recording: wl-screenrec (preferred) or wf-recorder (fallback)
 For GIF recording: gifski
 
-Install packages:
+## Install packages:
 
 Arch Linux:
-sudo pacman -S grim slurp wl-clipboard tesseract tesseract-data-eng imagemagick zbar curl translate-shell wf-recorder ffmpeg
+sudo pacman -S grim slurp wl-clipboard tesseract tesseract-data-eng imagemagick zbar curl translate-shell ffmpeg
+sudo pacman -S wl-screenrec   # preferred recorder
+# or: sudo pacman -S wf-recorder  # fallback
 yay -S gifski
+```
 
 Debian / Ubuntu:
-sudo apt install grim slurp wl-clipboard tesseract-ocr tesseract-ocr-eng imagemagick zbar-tools curl translate-shell wf-recorder ffmpeg
+sudo apt install grim slurp wl-clipboard tesseract-ocr tesseract-ocr-eng imagemagick zbar-tools curl translate-shell wl-screenrec ffmpeg
 cargo install gifski
+```
 
 Fedora:
-sudo dnf install grim slurp wl-clipboard tesseract tesseract-langpack-eng ImageMagick zbar curl translate-shell wf-recorder ffmpeg
+sudo dnf install grim slurp wl-clipboard tesseract tesseract-langpack-eng ImageMagick zbar curl translate-shell wl-screenrec ffmpeg
 cargo install gifski
+```
 
 openSUSE:
-sudo zypper install grim slurp wl-clipboard tesseract-ocr tesseract-ocr-traineddata-english ImageMagick zbar curl translate-shell wf-recorder ffmpeg
+sudo zypper install grim slurp wl-clipboard tesseract-ocr tesseract-ocr-traineddata-english ImageMagick zbar curl translate-shell wl-screenrec ffmpeg
 cargo install gifski
+```
+
+## Compatibility:
+NixOS:
+Add to your configuration.nix or home.nix:
+```bash
+environment.systemPackages = with pkgs; [
+  grim slurp wl-clipboard tesseract imagemagick zbar curl
+  translate-shell wl-screenrec ffmpeg gifski
+];
+```
+
+For additional OCR languages, use e.g. ```(pkgs.tesseract.override { enableLanguages = [ "eng" "deu" ]; })```
 
 Compatibility:
 Tested on Hyprland and Niri.
 
 IPC commands:
 
-plugin:screen-toolkit
-toggle        - open or close the panel
-colorPicker   - launch color picker
-ocr           - run OCR on a region
-qr            - scan QR / barcode
-lens          - upload region to Google Lens
-annotate      - open annotation tool
-measure       - start measuring overlay
-pin           - pin a region to screen
-palette       - extract colors
-record        - start screen recording
-mirror        - toggle webcam mirror
+## Screen Toolkit Commands
 
-Example:
+plugin:screen-toolkit
+
+toggle        → Open or close the panel  
+colorPicker   → Launch color picker  
+ocr           → Run OCR on a region  
+qr            → Scan QR / barcode  
+lens          → Upload region to Google Lens  
+annotate      → Open annotation tool  
+measure       → Start measuring overlay  
+pin           → Pin a region to screen  
+palette       → Extract colors  
+record        → Start screen recording
+recordStop    → Stop an active recording (useful when if mouse click is blocked during capture)
+mirror        → Toggle webcam mirror
+
+## Example:
+```bash
 qs -c noctalia-shell ipc call plugin:screen-toolkit toggle
+```
